@@ -1,9 +1,7 @@
-import Image from "next/image";
+import React from 'react'
 
-export default function Home() {
+export default function page() {
   return (
-    <div>
-      <h1 className="text-c-blue text-9xl font-space-grotesk uppercase font-bold">VIT Vellore</h1>
-    </div>
-  );
+    <div>page</div>
+  )
 }

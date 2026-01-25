@@ -2,11 +2,12 @@
 
 :root {
   --background: #000307;
-  --foreground: #171717;
+  --foreground: #ffffff;
   --c-blue: #576BCF;
   --c-purple: #965EFF;
   --c-orange: #D06345;
-  --c-green: #91A717;
+  --c-green: #50BE6A;
+  --c-yellow: #C8A83C;
 }
 
 @theme inline {
@@ -15,6 +16,7 @@
   --color-c-blue: var(--c-blue);
   --color-c-purple: var(--c-purple);
   --color-c-orange: var(--c-orange);
+  --color-c-yellow: var(--c-yellow);
   --color-c-green: var(--c-green);
   --font-space-grotesk: var(--font-space-grotesk);
   --font-jetbrains-mono: var(--font-jetbrains-mono);
