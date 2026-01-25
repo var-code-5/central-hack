@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import Navbar from "@/components/navbar";
 
 const jetBrainsMono = localFont({
   src: "./fonts/JetBrainsMono-2.304/fonts/variable/JetBrainsMono[wght].ttf",
@@ -29,6 +30,7 @@ export default function RootLayout({
       <body
         className={`${jetBrainsMono.variable} ${spaceGrotesk.variable} antialiased`}
       >
+        <Navbar />
         {children}
       </body>
     </html>

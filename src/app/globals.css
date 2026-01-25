@@ -8,6 +8,7 @@
   --c-orange: #D06345;
   --c-green: #50BE6A;
   --c-yellow: #C8A83C;
+  --c-red: #E74C3C;
 }
 
 @theme inline {
@@ -18,6 +19,7 @@
   --color-c-orange: var(--c-orange);
   --color-c-yellow: var(--c-yellow);
   --color-c-green: var(--c-green);
+  --color-c-red: var(--c-red);
   --font-space-grotesk: var(--font-space-grotesk);
   --font-jetbrains-mono: var(--font-jetbrains-mono);
 }
