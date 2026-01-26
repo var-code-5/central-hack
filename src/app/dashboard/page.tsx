@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 
 export default function Dashboard() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
+  const supabase = createClient();
 
   useEffect(() => {
     // Get user data and clean URL
@@ -14,7 +15,7 @@ export default function Dashboard() {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         setUser(session.user);
-        
+
         // Clean up URL hash (remove tokens from URL)
         if (window.location.hash) {
           window.history.replaceState(null, '', window.location.pathname);
@@ -36,11 +37,22 @@ export default function Dashboard() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [router]);
+  }, [router, supabase]);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push('/login');
+    try {
+      // Call the server-side logout API to properly clear cookies
+      await fetch('/auth/logout', {
+        method: 'POST',
+      });
+
+      // Also sign out on the client side
+      await supabase.auth.signOut();
+
+      router.push('/login');
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
   };
 
   return (

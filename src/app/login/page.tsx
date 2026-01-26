@@ -1,18 +1,29 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { useState, useEffect } from 'react';
+import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
+import { type User } from '@supabase/supabase-js';
 
 export default function Login() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const supabase = createClient();
 
   useEffect(() => {
+    // Check initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      if (session) {
+        router.push('/dashboard');
+      }
+    });
+
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
       if (event === 'SIGNED_IN' && session) {
         router.push('/dashboard');
       }
@@ -21,17 +32,19 @@ export default function Login() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [router]);
+  }, [router, supabase]);
+
 
   const handleGoogleLogin = async () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          // Redirect to dashboard after auth callback
+          redirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -52,17 +65,18 @@ export default function Login() {
       <div className="w-full max-w-md">
 
         {/* Login Card */}
-        <div className="rounded-2xl p-8 shadow-2xl">
+        <div className="rounded-2xl p-8 shadow-2xl bg-[#0A0A0A] border border-gray-800">
           {/* Error Message */}
           {error && (
-            <div className="mb-6 p-4 bg-c-red/10 border border-c-red/30 rounded-lg">
-              <p className="text-c-red text-sm font-jetbrains-mono">{error}</p>
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+              <p className="text-red-500 text-sm font-mono">{error}</p>
             </div>
           )}
+
           <button
             onClick={handleGoogleLogin}
             disabled={loading}
-            className="w-full bg-white hover:bg-gray-100 text-gray-900 font-space-grotesk font-semibold py-4 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed group shadow-lg hover:shadow-xl"
+            className="w-full bg-white hover:bg-gray-100 text-gray-900 font-sans font-semibold py-4 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed group shadow-lg hover:shadow-xl"
           >
             {loading ? (
               <div className="flex items-center gap-3">
@@ -78,7 +92,7 @@ export default function Login() {
                   />
                   <path
                     fill="#34A853"
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.04-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
                   />
                   <path
                     fill="#FBBC05"
