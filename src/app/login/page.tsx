@@ -61,11 +61,11 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen w-screen bg-[#000307] flex justify-center items-center p-4">
+    <div className="min-h-screen w-screen bg-black flex justify-center items-center p-4">
       <div className="w-full max-w-md">
 
         {/* Login Card */}
-        <div className="rounded-2xl p-8 shadow-2xl bg-[#0A0A0A] border border-gray-800">
+        <div className="rounded-2xl p-8 shadow-2xl">
           {/* Error Message */}
           {error && (
             <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
