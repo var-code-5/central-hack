@@ -5,7 +5,10 @@ import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import type { Session } from '@supabase/supabase-js';
 import type { GetProfileResponse, User as ProfileUser, Gender, CreateProfileResponse } from '@/types/profile';
-import type { GetTeamResponse } from '@/types/team';
+import type { GetTeamResponse, TeamWithDetails } from '@/types/team';
+import CreateTeamModal from '@/components/sections/dashboard/create-team';
+import JoinTeamModal from '@/components/sections/dashboard/join-team';
+import TeamCard from '@/components/sections/dashboard/team-card';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -13,8 +16,11 @@ export default function Dashboard() {
   const [session, setSession] = useState<Session | null>(null);
   const [profileData, setProfileData] = useState<ProfileUser | null>(null);
   const [profileCompleted, setProfileCompleted] = useState<boolean | null>(null);
+  const [teamData, setTeamData] = useState<TeamWithDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isCreateTeamOpen, setIsCreateTeamOpen] = useState(false);
+  const [isJoinTeamOpen, setIsJoinTeamOpen] = useState(false);
   const supabase = createClient();
 
   useEffect(() => {
@@ -28,7 +34,6 @@ export default function Dashboard() {
           window.history.replaceState(null, '', window.location.pathname);
         }
 
-        // Fetch profile data
         await fetchProfile(session.access_token);
       } else {
         setLoading(false);
@@ -70,14 +75,41 @@ export default function Dashboard() {
       if (data.profileCompleted) {
         setProfileCompleted(true);
         setProfileData(data.user);
+       
+        if (data.user.hasTeam) {
+          await fetchTeam(token);
+        } else {
+          setTeamData(null);
+        }
       } else {
         setProfileCompleted(false);
         setProfileData(null);
+        setTeamData(null);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load profile');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchTeam = async (token: string) => {
+    try {
+      const response = await fetch('/api/team', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch team');
+      }
+
+      const data: GetTeamResponse = await response.json();
+      setTeamData(data.team);
+    } catch (err) {
+      console.error('Failed to fetch team:', err);
+      setTeamData(null);
     }
   };
 
@@ -89,6 +121,84 @@ export default function Dashboard() {
     } catch (error) {
       console.error('Error during logout:', error);
     }
+  };
+
+  const handleCreateTeam = async (teamName: string) => {
+    if (!session) throw new Error('Not authenticated');
+
+    const response = await fetch('/api/team/create', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ teamName }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.message || 'Failed to create team');
+    }
+
+    await fetchProfile(session.access_token);
+  };
+
+  const handleJoinTeam = async (teamCode: string) => {
+    if (!session) throw new Error('Not authenticated');
+
+    const response = await fetch('/api/team/join', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ teamId: teamCode }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.message || 'Failed to join team');
+    }
+
+    await fetchProfile(session.access_token);
+  };
+
+  const handleLeaveTeam = async () => {
+    if (!session) throw new Error('Not authenticated');
+
+    const response = await fetch('/api/team/leave', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.message || 'Failed to leave team');
+    }
+
+    await fetchProfile(session.access_token);
+  };
+
+  const handleSubmitProblemStatement = async (psId: string) => {
+    if (!session) throw new Error('Not authenticated');
+
+    const response = await fetch('/api/team/ps', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ problemStatementId: psId }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.message || 'Failed to submit problem statement');
+    }
+
+    await fetchProfile(session.access_token);
   };
 
   const handleCreateProfile = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -297,37 +407,73 @@ export default function Dashboard() {
             <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
               <h2 className="text-xl font-space-grotesk font-semibold mb-4">Team Management</h2>
               
-              {profileData.hasTeam ? (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 font-jetbrains-mono">
-                    <span className="px-3 py-1 bg-green-900/30 border border-green-500 rounded-lg text-green-400">
-                      {profileData.isTeamLeader ? 'Team Leader' : 'Team Member'}
-                    </span>
-                  </div>
-                  <p className="text-gray-400 font-jetbrains-mono text-sm">
-                    You are {profileData.isTeamLeader ? 'leading' : 'part of'} a team
-                  </p>
-                  {/* Add team details component here */}
-                </div>
+              {profileData.hasTeam && teamData ? (
+                <TeamCard
+                  team={teamData}
+                  currentUserEmail={profileData.email}
+                  isLeader={profileData.isTeamLeader}
+                  onLeaveTeam={handleLeaveTeam}
+                  onSubmitProblemStatement={handleSubmitProblemStatement}
+                />
               ) : (
                 <div className="space-y-4">
                   <p className="text-gray-400 font-jetbrains-mono text-sm mb-4">
                     You are not part of any team yet. Create a new team or join an existing one.
                   </p>
                   <div className="grid grid-cols-2 gap-4">
-                    <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-jetbrains-mono transition-colors">
+                    <button 
+                      onClick={() => setIsCreateTeamOpen(true)}
+                      className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-jetbrains-mono transition-colors"
+                    >
                       Create Team
                     </button>
-                    <button className="px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-jetbrains-mono transition-colors">
+                    <button 
+                      onClick={() => setIsJoinTeamOpen(true)}
+                      className="px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-jetbrains-mono transition-colors"
+                    >
                       Join Team
                     </button>
                   </div>
                 </div>
               )}
             </div>
+
+            {/* Submissions Section */}
+            {profileData.hasTeam && teamData && (
+              <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-xl font-space-grotesk font-semibold">Submissions</h2>
+                    <p className="text-gray-400 font-jetbrains-mono text-sm mt-1">
+                      Submit your work for each round
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => router.push('/submission')}
+                    className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-jetbrains-mono transition-colors"
+                  >
+                    Go to Submissions →
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
+
+      {/* Create Team Modal */}
+      <CreateTeamModal
+        isOpen={isCreateTeamOpen}
+        onClose={() => setIsCreateTeamOpen(false)}
+        onSubmit={handleCreateTeam}
+      />
+
+      {/* Join Team Modal */}
+      <JoinTeamModal
+        isOpen={isJoinTeamOpen}
+        onClose={() => setIsJoinTeamOpen(false)}
+        onSubmit={handleJoinTeam}
+      />
     </div>
   );
 }

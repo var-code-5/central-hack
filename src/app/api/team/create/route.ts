@@ -8,7 +8,7 @@ export async function POST(request: Request) {
 
   const body = await request.json();
 
-  const rep = await fetch(`${process.env.BASE_URL}/teams/submit-ps`, {
+  const rep = await fetch(`${process.env.BASE_URL}/teams/create-team`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${authToken}`,
@@ -18,9 +18,10 @@ export async function POST(request: Request) {
   });
 
   if (!rep.ok) {
-    return new Response(JSON.stringify({ error: 'Failed to update user profile' }), { status: 500 });
+    console.log(rep);
+    return new Response(JSON.stringify({ error: 'Failed to create team' }), { status: 500 });
   }
 
-  const updatedProfile = await rep.json();
-  return new Response(JSON.stringify(updatedProfile), { status: 200 });
+  const createdTeam = await rep.json();
+  return new Response(JSON.stringify(createdTeam), { status: 200 });
 }
