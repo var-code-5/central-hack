@@ -7,8 +7,8 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-
-  const rep = await fetch(`${process.env.BASE_URL}/team/join-team`, {
+  console.log(body);
+  const rep = await fetch(`${process.env.BASE_URL}/teams/join-team`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${authToken}`,

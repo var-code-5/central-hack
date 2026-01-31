@@ -7,12 +7,15 @@ export async function POST(request: Request) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
   }
 
-  const rep = await fetch(`${process.env.BASE_URL}/teams/leave-team`, {
-    method: 'POST',
+//   const body = await request.json();
+
+  const rep = await fetch(`${process.env.BASE_URL}/submissions/view`, {
+    method: 'GET',
     headers: {
       'Authorization': `Bearer ${authToken}`,
       'Content-Type': 'application/json',
     },
+    // body: JSON.stringify(body),
   });
 
   if (!rep.ok) {

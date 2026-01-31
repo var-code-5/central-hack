@@ -7,13 +7,19 @@ export async function POST(request: Request) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
   }
 
-  const rep = await fetch(`${process.env.BASE_URL}/teams/leave-team`, {
+  const body = await request.json();
+  console.log(body);
+
+  const rep = await fetch(`${process.env.BASE_URL}/submissions/submit`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${authToken}`,
       'Content-Type': 'application/json',
     },
+    body: JSON.stringify(body),
   });
+
+  console.log(rep);
 
   if (!rep.ok) {
     return new Response(JSON.stringify({ error: 'Failed to update user profile' }), { status: 500 });
