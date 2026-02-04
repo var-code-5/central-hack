@@ -8,6 +8,8 @@ export interface User {
     hostelBlock: string;
     roomNo: string;
     mobileNo: string;
+    school: string;
+    branch: string;
     hasTeam: boolean;
     isTeamLeader: boolean;
     createdAt: string;
