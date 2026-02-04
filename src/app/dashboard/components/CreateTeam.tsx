@@ -30,7 +30,7 @@ export default function CreateTeam({
       {/* ---------------------------------------------------------------------------
           Left Side - Team Card Preview 
       --------------------------------------------------------------------------- */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 lg:sticky lg:top-0 lg:h-screen">
+      <div className="hidden w-full lg:w-1/2 lg:flex items-center justify-center p-6 md:p-12 lg:sticky lg:top-0 lg:h-screen">
         <div className="relative w-full max-w-[450px]">
           <div className="bg-[#E5310E] p-6 md:p-8 aspect-[4/5] flex flex-col rounded-md shadow-2xl shadow-[#E5310E]/10">
             <div className="mb-4">

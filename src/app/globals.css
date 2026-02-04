@@ -9,6 +9,7 @@
   --c-green: #50BE6A;
   --c-yellow: #C8A83C;
   --c-red: #E74C3C;
+  --c-home-blue: #A2B4FB;
 }
 
 @theme inline {
@@ -20,6 +21,7 @@
   --color-c-yellow: var(--c-yellow);
   --color-c-green: var(--c-green);
   --color-c-red: var(--c-red);
+  --color-c-home-blue: var(--c-home-blue);
   --font-space-grotesk: var(--font-space-grotesk);
   --font-jetbrains-mono: var(--font-jetbrains-mono);
 }

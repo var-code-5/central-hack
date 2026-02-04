@@ -107,13 +107,14 @@ export default function CompleteProfile({
   }, [formData.gender, isDayBoarder]);
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen w-full bg-[#0D0A0A] overflow-x-hidden">
+    <div className="flex flex-col lg:flex-row min-h-screen w-full bg-[#0D0A0A] overflow-x-hidden pb-4">
       
       {/* ---------------------------------------------------------------------------
           Left Side - Card Preview 
           Adjusted: Flex column on mobile, sticky/fixed height feel not strictly enforced to allow scrolling on small screens
       --------------------------------------------------------------------------- */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 md:p-8 lg:p-12 lg:sticky lg:top-0 lg:h-screen">
+      <div className='hidden lg:block lg:w-1/2'></div>
+      <div className="hidden w-full lg:w-1/2 md:flex items-center justify-center p-4 md:p-8 lg:p-12 md:fixed lg:top-0 lg:h-screen">
         <div className="relative border-4 border-[#E5310E]/30 rounded-lg w-full max-w-[450px] shadow-2xl shadow-[#E5310E]/10 transition-transform duration-300 hover:scale-[1.02]">
           
           <div className="bg-[#E5310E] p-6 md:p-8 aspect-[3/4] md:aspect-[4/5] flex flex-col justify-between rounded-md relative overflow-hidden">
@@ -179,7 +180,7 @@ export default function CompleteProfile({
           Right Side - Form 
           Adjusted: Padding and font sizes for mobile
       --------------------------------------------------------------------------- */}
-      <div className="w-full lg:w-1/2 p-4 md:p-8 lg:p-12 flex flex-col justify-center min-h-screen">
+      <div className="w-full lg:w-1/2 p-4 md:p-8 lg:p-12 flex flex-col justify-center min-h-screen mb-8">
         <div className="max-w-lg mx-auto w-full">
           <p className="text-[#E5310E] font-jetbrains-mono text-xs md:text-sm mb-2 tracking-widest">// YOUR-INFO</p>
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-space-grotesk font-bold text-[#E5310E] mb-6 md:mb-8 leading-tight">
@@ -367,7 +368,7 @@ export default function CompleteProfile({
               <button
                 onClick={onSubmit}
                 disabled={loading || !formData.name || !formData.regNo || !formData.gender || !formData.mobileNo || !formData.school || !formData.branch || (!isDayBoarder && (!formData.hostelBlock || !formData.roomNo))}
-                className="flex-1 px-8 py-3 bg-[#B85C5C] text-white font-jetbrains-mono text-sm md:text-base uppercase hover:bg-[#E5310E] transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded-sm"
+                className="flex-1 px-8 py-3 bg-[#E5310E]/90 cursor-pointer text-white font-jetbrains-mono text-sm md:text-base uppercase hover:bg-[#E5310E] transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded-sm"
               >
                 {loading ? 'Creating...' : 'Next'}
               </button>
