@@ -19,10 +19,10 @@ export async function POST(request: Request) {
     body: JSON.stringify(body),
   });
 
-  console.log(rep);
-
   if (!rep.ok) {
-    const errorData = await rep.json().catch(() => ({ error: 'Unknown backend error' }));
+    const resp = await rep.json();
+    console.log(resp);
+    const errorData = resp.error || { message: 'Failed to submit submission' };
     return new Response(JSON.stringify(errorData), { status: rep.status });
   }
 

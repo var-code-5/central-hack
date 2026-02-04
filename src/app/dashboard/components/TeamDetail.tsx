@@ -66,17 +66,17 @@ export default function TeamDetail({
     {
       id: 1,
       name: 'Round 1',
-      description: 'Lacinia elit velit augue dignissim. Adipiscing non enim eget quam interdum neque.',
+      description: '',
     },
     {
       id: 2,
       name: 'Round 2',
-      description: 'Elit in ut tempus velit sed velit at nunc.',
+      description: '',
     },
     {
       id: 3,
       name: 'Round 3',
-      description: 'Elit in ut tempus velit sed velit at nunc.',
+      description: '',
     },
   ].map(r => {
     const globalStatus = globalRoundStatus[r.id] || 'LOCKED';
@@ -140,8 +140,9 @@ export default function TeamDetail({
         toast.success('Submission successful');
         window.location.reload();
       } else {
-        const errorData = await response.json().catch(() => ({}));
-        toast.error(`Submission failed: ${errorData.error || 'Unknown error'}`);
+        const errorData = await response.json();
+        console.log(errorData);
+        toast.error(`Submission failed: ${errorData || 'Unknown error'}`);
       }
     } catch (e) {
       console.error(e);
@@ -191,20 +192,20 @@ export default function TeamDetail({
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#000000] text-white pt-16 pb-8 px-4 md:px-10 font-sans">
+    <div className="w-full min-h-screen text-white pb-8 font-jetbrains-mono px-4 sm:px-6">
       <div className="flex flex-col lg:flex-row gap-6 max-w-[1400px] mx-auto">
 
         {/* Main Content */}
         <div className="flex-1 space-y-6">
 
           {/* Timeline Section */}
-          <div className="bg-[#080808] border border-white/5 p-8 relative">
-            <h2 className="text-white font-bold text-xl mb-10 tracking-tight uppercase">THE TIMELINE</h2>
+          <div className="bg-[#221617] border border-white/5 rounded-lg p-5 sm:p-8 relative hidden md:block">
+            <h2 className="text-white font-extrabold text-2xl mb-6 sm:mb-10 tracking-tight uppercase">THE TIMELINE</h2>
 
-            <div className="relative flex items-center justify-between px-2">
-              <div className="absolute top-4 left-0 right-0 h-[1px] bg-white/10"></div>
+            <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 sm:gap-0 px-2">
+              <div className="hidden sm:block absolute top-4 left-0 right-0 h-[1px] bg-white/10"></div>
 
-              <div className="absolute top-4 left-0 w-[22%] h-[1px] bg-[#E3495A]"></div>
+              <div className="hidden sm:block absolute top-4 left-0 w-[22%] h-[1px] bg-[#E3495A]"></div>
 
               {rounds.map((round, i) => {
                 const isDone = round.globalStatus === 'COMPLETED';
@@ -238,7 +239,7 @@ export default function TeamDetail({
               </button>
             </div>
 
-            <div className="grid grid-cols-12 gap-4 px-6 py-3 border-y border-white/5 text-[10px] font-bold text-white/40 uppercase tracking-widest">
+            <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-3 border-y border-white/5 text-[10px] font-bold text-white/40 uppercase tracking-widest">
               <div className="col-span-1 flex items-center gap-2">ROUND <span className="text-[8px]">NO</span></div>
               <div className="col-span-5 flex items-center gap-2">ROUND INFO <span className="text-[8px]">⇅</span></div>
               <div className="col-span-3 flex items-center gap-2">STATUS <span className="text-[8px]">⇅</span></div>
@@ -246,14 +247,21 @@ export default function TeamDetail({
             </div>
 
             {rounds.map((round, index) => (
-              <div key={index} className={`grid grid-cols-12 gap-4 px-6 py-6 border-b border-white/5 items-center ${index === 0 ? 'bg-white/[0.02]' : ''}`}>
-                <div className="col-span-1 text-sm font-bold text-white/60">{round.id}</div>
-                <div className="col-span-5">
+                <div key={index} className={`grid grid-cols-1 md:grid-cols-12 gap-4 px-6 py-6 border-b border-white/5 items-start md:items-center ${index === 0 ? 'bg-white/[0.02]' : ''}`}>
+                <div className="md:col-span-1 text-sm font-bold text-white/60">
+                  <span className="md:hidden text-[10px] uppercase text-white/40 mr-2">Round</span>
+                  {round.id}
+                </div>
+                <div className="md:col-span-5">
                   <p className="font-bold text-white text-base">{round.name}</p>
                   <p className="text-white/40 text-xs mt-1 leading-relaxed line-clamp-2 max-w-sm">{round.description}</p>
                 </div>
-                <div className="col-span-3">{getStatusBadge(round.status)}</div>
-                <div className="col-span-3 flex justify-end">
+                <div className="md:col-span-3">
+                  <div className="md:hidden text-[10px] uppercase text-white/40 mb-2">Status</div>
+                  {getStatusBadge(round.status)}
+                </div>
+                <div className="md:col-span-3 flex flex-col md:flex-row md:justify-end">
+                  <div className="md:hidden text-[10px] uppercase text-white/40 mb-2">Actions</div>
                   {round.canSubmit ? (
                     <button
                       onClick={async () => {
@@ -309,10 +317,10 @@ export default function TeamDetail({
         </div>
 
         {/* Right Sidebar */}
-        <div className="w-full lg:w-80 space-y-6 sticky top-24 h-fit">
+        <div className="w-full lg:w-80 space-y-6 lg:sticky lg:top-24 h-fit">
           <div className="bg-[#080808] border border-white/5 p-6">
             <p className="text-[10px] font-bold text-white/40 tracking-widest uppercase mb-1">CURRENT STATUS</p>
-            <h2 className="text-3xl font-bold tracking-tight">{currentLiveRound.name.toUpperCase()}</h2>
+            <h2 className="text-3xl font-bold tracking-tight break-words">{currentLiveRound.name.toUpperCase()}</h2>
             <p className={`text-xs font-bold mt-1 uppercase tracking-widest ${currentLiveRound.status.includes('QUALIFIED') ? 'text-[#32D583]' : 'text-[#E3495A]'}`}>
               {currentLiveRound.status.replace('_', ' ')}
             </p>
@@ -332,7 +340,7 @@ export default function TeamDetail({
               <div className="relative z-10">
                 <p className="text-white/80 text-[10px] font-bold tracking-widest uppercase mb-1">TEAM NAME</p>
                 <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-lg font-bold text-white">{teamData.teamName}</h3>
+                  <h3 className="text-lg font-bold text-white break-words">{teamData.teamName}</h3>
                 </div>
 
                 {/* Team Code with Copy */}
@@ -344,17 +352,13 @@ export default function TeamDetail({
                   >
                     <div>
                       <p className="text-[9px] font-bold text-[#FB3103] tracking-widest uppercase mb-1">TEAM CODE</p>
-                      <p className="text-sm font-mono font-bold text-white tracking-[0.2em]">{teamData.teamId}</p>
+                      <p className="text-sm font-mono font-bold text-white tracking-[0.2em] break-all sm:break-normal">{teamData.teamId}</p>
                     </div>
                     <div className="w-8 h-8 flex items-center justify-center rounded bg-white/5 group-hover:bg-[#FB3103]/20 transition-all border border-white/10 group-hover:border-[#FB3103]/50">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/60 group-hover:text-[#FB3103] transition-colors"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                     </div>
                   </div>
                 </div>
-              </div>
-              {/* Minimal SVG icons to match reference decoration */}
-              <div className="absolute right-2 bottom-2 opacity-40">
-                <svg width="60" height="60" viewBox="0 0 100 100" fill="white"><circle cx="80" cy="80" r="15" fill="none" stroke="white" strokeWidth="2" opacity="0.3" /><circle cx="60" cy="60" r="20" fill="none" stroke="white" strokeWidth="2" opacity="0.5" /></svg>
               </div>
             </div>
           </div>
@@ -385,7 +389,7 @@ export default function TeamDetail({
               ) : (
                 <div>
                   <label className="text-[9px] font-bold text-white/40 tracking-widest uppercase mb-1 block">UPDATE PS CODE</label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <input
                       type="text"
                       placeholder="e.g. HCSIT001"
@@ -408,7 +412,7 @@ export default function TeamDetail({
 
           <div className="bg-[#080808] border border-white/5 p-5">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="font-bold text-xs tracking-widest uppercase text-white/80">{teamData.teamName} SMASHERS</h3>
+              <h3 className="font-bold text-xs tracking-widest uppercase text-white/80">{teamData.teamName}</h3>
               <button className="text-[10px] font-bold text-white/40 border border-white/10 px-2 py-1 flex items-center gap-2">
                 Refresh <span>↻</span>
               </button>

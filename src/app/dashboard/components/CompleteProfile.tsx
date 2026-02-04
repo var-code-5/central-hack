@@ -4,6 +4,7 @@ import React, { useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import { branches, schools, mhBlocks, lhBlocks } from '../constants';
 import type { Gender } from '@/types/profile';
+import { useToast } from '@/components/ui/Toast';
 
 interface FormData {
   name: string;
@@ -53,6 +54,7 @@ export default function CompleteProfile({
   onSubmit,
   onGoBack,
 }: CompleteProfileProps) {
+  const toast = useToast();
   
   // Parse display name and auto-fill on mount
   useEffect(() => {
@@ -105,6 +107,30 @@ export default function CompleteProfile({
     if (formData.gender === 'FEMALE') return lhBlocks;
     return []; 
   }, [formData.gender, isDayBoarder]);
+
+  const getMissingFieldMessage = (): string | null => {
+    if (!formData.name.trim()) return 'Please enter your name.';
+    if (!formData.regNo.trim()) return 'Please enter your registration number.';
+    if (!formData.gender) return 'Please select your gender.';
+    if (!formData.school) return 'Please select your school.';
+    if (!formData.branch) return 'Please select your branch.';
+    if (!formData.mobileNo.trim()) return 'Please enter your mobile number.';
+    if (!isDayBoarder) {
+      if (!formData.hostelBlock) return 'Please select your hostel block.';
+      if (!formData.roomNo.trim()) return 'Please enter your room number.';
+    }
+    return null;
+  };
+
+  const handleSubmit = async () => {
+    const missingFieldMessage = getMissingFieldMessage();
+    if (missingFieldMessage) {
+      toast.error(missingFieldMessage);
+      return;
+    }
+
+    await onSubmit();
+  };
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen w-full bg-[#0D0A0A] overflow-x-hidden pb-4">
@@ -366,8 +392,8 @@ export default function CompleteProfile({
                 Go Back
               </button>
               <button
-                onClick={onSubmit}
-                disabled={loading || !formData.name || !formData.regNo || !formData.gender || !formData.mobileNo || !formData.school || !formData.branch || (!isDayBoarder && (!formData.hostelBlock || !formData.roomNo))}
+                onClick={handleSubmit}
+                disabled={loading}
                 className="flex-1 px-8 py-3 bg-[#E5310E]/90 cursor-pointer text-white font-jetbrains-mono text-sm md:text-base uppercase hover:bg-[#E5310E] transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded-sm"
               >
                 {loading ? 'Creating...' : 'Next'}
