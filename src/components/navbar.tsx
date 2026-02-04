@@ -15,8 +15,25 @@ const DiagonalNav: React.FC<DiagonalNavProps> = ({ userName, showDashboardNav = 
     const router = useRouter();
     const [open, setOpen] = useState(false);
     const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const supabase = createClient();
     const { dashboardStep } = useDashboardContext();
+
+    useEffect(() => {
+        const checkUser = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            setIsLoggedIn(!!session);
+        };
+        checkUser();
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setIsLoggedIn(!!session);
+        });
+
+        return () => {
+            subscription.unsubscribe();
+        };
+    }, [supabase]);
 
     const colorClasses = useMemo(() => {
         if (pathname.startsWith("/problem-statements")) {
@@ -45,7 +62,8 @@ const DiagonalNav: React.FC<DiagonalNavProps> = ({ userName, showDashboardNav = 
         try {
             await fetch('/auth/logout', { method: 'POST' });
             await supabase.auth.signOut();
-            router.push('/login');
+            setIsLoggedIn(false);
+            router.push('/dashboard'); // Go to dashboard landing instead of login since login redirects
         } catch (error) {
             console.error('Error during logout:', error);
         }
@@ -81,26 +99,26 @@ const DiagonalNav: React.FC<DiagonalNavProps> = ({ userName, showDashboardNav = 
 
                     {/* Dashboard Navigation Tabs */}
                     <div className="hidden md:flex font-space-grotesk uppercase font-bold h-full items-center flex-1">
-                        <Link 
-                            href="/dashboard" 
+                        <Link
+                            href="/dashboard"
                             className={`h-full flex items-center text-white px-6 ${bgClass} hover:opacity-90 transition-opacity`}
                         >
                             Dashboard
                         </Link>
-                        <Link 
-                            href="/" 
+                        <Link
+                            href="/"
                             className="h-full flex items-center text-white px-6 bg-[#4A4A5A] hover:bg-[#5A5A6A] transition-colors"
                         >
                             Home
                         </Link>
-                        <Link 
-                            href="/problem-statements" 
+                        <Link
+                            href="/problem-statements"
                             className="h-full flex items-center text-white px-6 bg-[#4A4A5A] hover:bg-[#5A5A6A] transition-colors"
                         >
                             Tracks
                         </Link>
-                        <Link 
-                            href="/timeline" 
+                        <Link
+                            href="/timeline"
                             className="h-full flex items-center text-white px-6 bg-[#4A4A5A] hover:bg-[#5A5A6A] transition-colors"
                         >
                             Timeline
@@ -158,15 +176,15 @@ const DiagonalNav: React.FC<DiagonalNavProps> = ({ userName, showDashboardNav = 
                     <Link href="/" className={`border-x-4 ${borderClass} ${pathname === "/" ? bgClass : ""} h-full flex items-center text-white px-2 hover:opacity-80 transition-opacity`}>Home</Link>
                     <Link href="/problem-statements" className={`${borderClass} ${pathname.startsWith("/problem-statements") ? bgClass : ""} h-full flex items-center text-white px-2 hover:opacity-80 transition-opacity`}>Problem Statements</Link>
                     <Link href="/timeline" className={`border-x-4 ${borderClass} ${pathname.startsWith("/timeline") ? bgClass : ""} h-full flex items-center text-white px-2 hover:opacity-80 transition-opacity`}>Timeline</Link>
-                    {isDashboard ? (
-                        <button 
+                    {isDashboard && isLoggedIn ? ( // Desktop
+                        <button
                             onClick={handleLogout}
                             className={`border-r-4 ${borderClass} ${bgClass} h-full flex items-center text-white px-2 hover:opacity-80 transition-opacity`}
                         >
                             LOGOUT
                         </button>
                     ) : (
-                        <Link href="/login" className={`border-r-4 ${borderClass} ${pathname.startsWith("/login") ? bgClass : ""} h-full flex items-center text-white px-2 hover:opacity-80 transition-opacity`}>Login</Link>
+                        <Link href="/dashboard" className={`border-r-4 ${borderClass} ${pathname.startsWith("/login") ? bgClass : ""} h-full flex items-center text-white px-2 hover:opacity-80 transition-opacity`}>DASHBOARD</Link>
                     )}
                 </div>
 
@@ -196,16 +214,17 @@ const DiagonalNav: React.FC<DiagonalNavProps> = ({ userName, showDashboardNav = 
                     <Link href="/" className={`px-4 py-3 border-b ${borderClass} ${pathname === "/" ? bgClass : ""} hover:opacity-80 transition-opacity`}>Home</Link>
                     <Link href="/problem-statements" className={`px-4 py-3 border-b ${borderClass} ${pathname.startsWith("/problem-statements") ? bgClass : ""} hover:opacity-80 transition-opacity`}>Problem Statements</Link>
                     <Link href="/timeline" className={`px-4 py-3 border-b ${borderClass} ${pathname.startsWith("/timeline") ? bgClass : ""} hover:opacity-80 transition-opacity`}>Timeline</Link>
-                    {isDashboard ? (
-                        <button 
+                    {isDashboard && isLoggedIn ? (
+                        <button
                             onClick={handleLogout}
                             className={`px-4 py-3 ${bgClass} hover:opacity-80 transition-opacity text-left`}
                         >
                             Logout
                         </button>
                     ) : (
-                        <Link href="/login" className={`px-4 py-3 ${pathname.startsWith("/login") ? bgClass : ""} hover:opacity-80 transition-opacity`}>Login</Link>
+                        <Link href="/dashboard" className={`px-4 py-3 ${pathname.startsWith("/login") ? bgClass : ""} hover:opacity-80 transition-opacity`}>DASHBOARD</Link>
                     )}
+
                 </div>
             </div>
 

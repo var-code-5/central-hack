@@ -11,6 +11,7 @@ interface CreateTeamProps {
   loading: boolean;
   onCreateTeam: () => Promise<void>;
   onJoinTeam: () => Promise<void>;
+  onGoBack?: () => void;
 }
 
 export default function CreateTeam({
@@ -21,10 +22,11 @@ export default function CreateTeam({
   loading,
   onCreateTeam,
   onJoinTeam,
+  onGoBack,
 }: CreateTeamProps) {
   return (
     <div className="flex flex-col lg:flex-row min-h-screen w-full bg-[#0D0A0A] overflow-x-hidden">
-      
+
       {/* ---------------------------------------------------------------------------
           Left Side - Team Card Preview 
       --------------------------------------------------------------------------- */}
@@ -37,13 +39,13 @@ export default function CreateTeam({
                 {teamName || "TEAM NAME"}
               </p>
             </div>
-            
+
             {/* Team Card Image */}
             <div className="flex-1 flex items-center justify-center relative">
-              <Image 
-                src="/dashboard/team-card-img.svg" 
-                alt="Team" 
-                width={350} 
+              <Image
+                src="/dashboard/team-card-img.svg"
+                alt="Team"
+                width={350}
                 height={280}
                 className="w-full max-w-[280px] md:max-w-[350px] opacity-80 object-contain drop-shadow-lg"
                 priority
@@ -51,9 +53,9 @@ export default function CreateTeam({
             </div>
 
             <div className="mt-auto pt-4 border-t border-white/20">
-               <p className="text-[10px] text-white opacity-70 font-jetbrains-mono uppercase">
-                  {teamCode ? `CODE ENTERED: ${teamCode}` : 'STATUS: PENDING'}
-               </p>
+              <p className="text-[10px] text-white opacity-70 font-jetbrains-mono uppercase">
+                {teamCode ? `CODE ENTERED: ${teamCode}` : 'STATUS: PENDING'}
+              </p>
             </div>
           </div>
         </div>
@@ -70,7 +72,7 @@ export default function CreateTeam({
           </h1>
 
           <div className="space-y-8">
-            
+
             {/* Create Team Section */}
             <div>
               <label className="block text-[#E5310E] font-jetbrains-mono text-sm mb-2 uppercase">
@@ -82,7 +84,7 @@ export default function CreateTeam({
                   value={teamName}
                   onChange={(e) => {
                     setTeamName(e.target.value);
-                    if(e.target.value) setTeamCode(''); // Clear code to avoid confusion
+                    if (e.target.value) setTeamCode(''); // Clear code to avoid confusion
                   }}
                   placeholder="ENTER TEAM NAME"
                   className="w-full px-4 py-3 bg-transparent border border-[#3D2A2A] text-white font-jetbrains-mono uppercase focus:outline-none focus:border-[#E5310E] placeholder:text-gray-600 transition-colors"
@@ -115,7 +117,7 @@ export default function CreateTeam({
                   value={teamCode}
                   onChange={(e) => {
                     setTeamCode(e.target.value.toUpperCase());
-                    if(e.target.value) setTeamName(''); // Clear name to avoid confusion
+                    if (e.target.value) setTeamName(''); // Clear name to avoid confusion
                   }}
                   placeholder="ENTER CODE"
                   className="w-full px-4 py-3 bg-transparent border border-[#3D2A2A] text-white font-jetbrains-mono uppercase focus:outline-none focus:border-[#E5310E] placeholder:text-gray-600 transition-colors"
