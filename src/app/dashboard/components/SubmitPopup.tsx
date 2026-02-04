@@ -7,17 +7,39 @@ interface SubmitPopupProps {
     isOpen: boolean;
     onClose: () => void;
     onSubmit: (data: any) => Promise<void>;
+    initialData?: {
+        title: string;
+        description: string;
+        links: string[];
+    } | null;
 }
 
-export default function SubmitPopup({ roundId, isOpen, onClose, onSubmit }: SubmitPopupProps) {
+export default function SubmitPopup({ roundId, isOpen, onClose, onSubmit, initialData }: SubmitPopupProps) {
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         title: '',
         description: '',
-        link1: '', // Drive (R0) or Github (R1+)
-        link2: '', // Figma (R1+)
-        link3: '', // Other (R1+)
+        link1: '',
+        link2: '',
+        link3: '',
     });
+
+    React.useEffect(() => {
+        if (isOpen && initialData) {
+            setFormData({
+                title: initialData.title || '',
+                description: initialData.description || '',
+                link1: initialData.links?.[0] || '',
+                link2: initialData.links?.[1] || '',
+                link3: initialData.links?.[2] || '',
+            });
+        } else if (isOpen) {
+           
+            if (!initialData) {
+                setFormData({ title: '', description: '', link1: '', link2: '', link3: '' });
+            }
+        }
+    }, [isOpen, initialData]);
 
     if (!isOpen) return null;
 
@@ -29,23 +51,21 @@ export default function SubmitPopup({ roundId, isOpen, onClose, onSubmit }: Subm
 
     const handleSubmit = async () => {
         setLoading(true);
-        // Simple validation
+      
         if (!formData.title.trim()) {
             alert("Please enter a title");
             setLoading(false);
             return;
         }
 
-        // For Round 1+, Github (link1) is mandatory
+     
         if (!isRoundZero && !formData.link1.trim()) {
             alert("Github Link is mandatory");
             setLoading(false);
             return;
         }
 
-        // For Round 0, Drive (link1) is expected (user said "get input as Drive Link", 
-        // referencing the image which has multiple link slots, but text was specific.
-        // I will use link1 as primary link slot)
+
 
         try {
             await onSubmit({
@@ -99,7 +119,7 @@ export default function SubmitPopup({ roundId, isOpen, onClose, onSubmit }: Subm
 
                     {/* Links Section */}
                     <div className="space-y-4">
-                        {/* Link 1: Drive (R0) or Github (R1+) */}
+                        
                         <div className="space-y-2">
                             <label className="text-[#FB3103] text-xs font-bold tracking-widest uppercase">
                                 {isRoundZero ? 'DRIVE LINK' : 'GITHUB LINK (MANDATORY)'}
@@ -124,7 +144,6 @@ export default function SubmitPopup({ roundId, isOpen, onClose, onSubmit }: Subm
                             </div>
                         </div>
 
-                        {/* Additional Links for Round 1+ */}
                         {!isRoundZero && (
                             <>
                                 <div className="space-y-2">
@@ -175,18 +194,10 @@ export default function SubmitPopup({ roundId, isOpen, onClose, onSubmit }: Subm
                             </>
                         )}
 
-                        {/* If Round 0, maybe show extra link slots just to match image if user insists, 
-                but requirements said "input as Drive Link". 
-                The image shows 3 link slots. I'll stick to 1 for R0 based on text description unless user complains.
-                Correction: Image shows "Add Link" 3 times. 
-                User text: "For round-0 Idea Submission get the input as Drive Link"
-                I will stick to 1 link slot for R0 to follow specific instructions over generic image. 
-                Wait, user said "It should be like... attached popup", but described R0 specific fields.
-                I'll follow the text description for R0 (just Drive Link) but keep sizing consistent.
-             */}
+
                     </div>
 
-                    {/* Description */}
+
                     <div className="space-y-2">
                         <label className="text-[#FB3103] text-xs font-bold tracking-widest uppercase">
                             {isRoundZero ? 'IDEA DESCRIPTION' : 'PROJECT DESCRIPTION'}
@@ -202,7 +213,7 @@ export default function SubmitPopup({ roundId, isOpen, onClose, onSubmit }: Subm
 
                 </div>
 
-                {/* Submit Button */}
+
                 <div className="mt-8">
                     <button
                         onClick={handleSubmit}

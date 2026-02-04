@@ -3,15 +3,15 @@ import { cookies } from 'next/headers';
 
 export async function GET(request: Request) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('authToken')?.value;
+    const authHeader = request.headers.get('Authorization');
+    const token = authHeader?.split(' ')[1];
 
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
-    const response = await fetch(`${backendUrl}/api/teams/get-team`, {
+    const response = await fetch(`${backendUrl}/api/submissions/view`, {
       headers: {
         'Authorization': `Bearer ${token}`
       },

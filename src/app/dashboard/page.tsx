@@ -427,6 +427,7 @@ export default function Dashboard() {
             user={user}
             onLeaveTeam={handleLeaveTeam}
             loading={loading}
+            token={session.access_token}
           />
         )}
       </div>

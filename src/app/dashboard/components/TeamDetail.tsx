@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import type { User as ProfileUser } from '@/types/profile';
 import type { TeamWithDetails } from '@/types/team';
 import SubmitPopup from './SubmitPopup';
+import { problemStatements } from '../../problem-statements/data';
 
 interface TeamDetailProps {
   profileData: ProfileUser;
@@ -11,6 +12,7 @@ interface TeamDetailProps {
   user: any;
   onLeaveTeam: () => Promise<void>;
   loading: boolean;
+  token: string;
 }
 
 export default function TeamDetail({
@@ -18,11 +20,16 @@ export default function TeamDetail({
   teamData,
   user,
   onLeaveTeam,
-  loading
+  loading,
+  token
 }: TeamDetailProps) {
   const [showPopup, setShowPopup] = useState(false);
   const [activeRoundId, setActiveRoundId] = useState<number>(0);
   const [globalRoundStatus, setGlobalRoundStatus] = useState<Record<string, string>>({});
+  const [psCodeInput, setPsCodeInput] = useState('');
+  const [isSubmittingPs, setIsSubmittingPs] = useState(false);
+  const [popupInitialData, setPopupInitialData] = useState<any>(null);
+  const [isFetchingSubmission, setIsFetchingSubmission] = useState(false);
 
   useEffect(() => {
     const fetchRoundStatus = async () => {
@@ -72,8 +79,6 @@ export default function TeamDetail({
     let teamStatus = getTeamRoundStatus(r.id);
     const isLive = globalStatus === 'LIVE';
 
-    // If the round is live but the team status is still the default 'LOCKED',
-    // it implies they haven't done anything yet, so show 'NOT SUBMITTED'.
     if (isLive && teamStatus === 'LOCKED') {
       teamStatus = 'NOT SUBMITTED';
     }
@@ -114,18 +119,65 @@ export default function TeamDetail({
     try {
       const response = await fetch('/api/submissions/submit', { // Assuming you created a submit proxy or use logic
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ round: data.roundId, submissionData: data.links })
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          round: data.roundId,
+          submissionData: {
+            title: data.title,
+            description: data.description,
+            links: [data.link1, data.link2, data.link3].filter(Boolean)
+          }
+        })
       });
       if (response.ok) {
         alert('Submission successful');
         window.location.reload();
       } else {
-        alert('Submission failed');
+        const errorData = await response.json().catch(() => ({}));
+        alert(`Submission failed: ${errorData.error || 'Unknown error'}`);
       }
     } catch (e) {
       console.error(e);
       alert('Error submitting');
+    }
+  };
+
+  const handlePsSubmit = async () => {
+    if (!psCodeInput) return;
+
+    // Validate if PS code exists in our data
+    const isValidPs = problemStatements.some(ps => ps.id === psCodeInput);
+    if (!isValidPs) {
+      alert("PS doesn't exists");
+      return;
+    }
+
+    try {
+      setIsSubmittingPs(true);
+      const res = await fetch('/api/team/ps', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ problemStatementId: psCodeInput })
+      });
+
+      if (res.ok) {
+        alert("Problem Statement updated successfully!");
+        window.location.reload();
+      } else {
+        const errorData = await res.json();
+        alert(`Failed to update PS: ${errorData.error || 'Unknown error'}`);
+      }
+    } catch (e) {
+      console.error("Error submitting PS", e);
+      alert("Error submitting Problem Statement");
+    } finally {
+      setIsSubmittingPs(false);
     }
   };
 
@@ -147,7 +199,7 @@ export default function TeamDetail({
 
             <div className="relative flex items-center justify-between px-2">
               <div className="absolute top-4 left-0 right-0 h-[1px] bg-white/10"></div>
-              {/* Dynamic progress bar could be implemented here */}
+            
               <div className="absolute top-4 left-0 w-[22%] h-[1px] bg-[#E3495A]"></div>
 
               {rounds.map((round, i) => {
@@ -200,13 +252,44 @@ export default function TeamDetail({
                 <div className="col-span-3 flex justify-end">
                   {round.canSubmit ? (
                     <button
-                      onClick={() => {
+                      onClick={async () => {
                         setActiveRoundId(round.id);
+                        if (round.status === 'SUBMITTED' || round.status === 'UNDER_EVALUATION') {
+                          setIsFetchingSubmission(true);
+                          try {
+                            const res = await fetch('/api/submissions/view', {
+                              headers: {
+                                'Authorization': `Bearer ${token}`
+                              }
+                            });
+                            if (res.ok) {
+                              const { submission } = await res.json();
+                              const roundKey = `round${round.id}Submission`;
+                              const data = submission?.[roundKey];
+                              setPopupInitialData(data || null);
+                            } else {
+                              console.error("Failed to fetch submission");
+                              setPopupInitialData(null);
+                            }
+                          } catch (e) {
+                            console.error(e);
+                            setPopupInitialData(null);
+                          } finally {
+                            setIsFetchingSubmission(false);
+                          }
+                        } else {
+                          setPopupInitialData(null);
+                        }
                         setShowPopup(true);
                       }}
-                      className="px-6 py-2.5 bg-[#E3495A] text-white text-[11px] font-bold tracking-wider uppercase shadow-lg shadow-[#E3495A]/10 hover:bg-[#E3495A]/90 transition-colors"
+                      disabled={isFetchingSubmission}
+                      className={`px-6 py-2.5 text-[11px] font-bold tracking-wider uppercase shadow-lg transition-colors
+                        ${round.status === 'SUBMITTED' || round.status === 'UNDER_EVALUATION'
+                          ? 'bg-transparent border border-[#FEC84B] text-[#FEC84B] hover:bg-[#FEC84B] hover:text-black'
+                          : 'bg-[#E3495A] text-white shadow-[#E3495A]/10 hover:bg-[#E3495A]/90'
+                        } disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
-                      ADD SUBMISSION
+                      {isFetchingSubmission ? 'LOADING...' : (round.status === 'SUBMITTED' || round.status === 'UNDER_EVALUATION' ? 'EDIT SUBMISSION' : 'ADD SUBMISSION')}
                     </button>
                   ) : (
                     <button className="px-10 py-2.5 border border-white/10 text-white text-[11px] font-bold tracking-wider uppercase hover:bg-white/5 cursor-not-allowed opacity-50">
@@ -270,6 +353,53 @@ export default function TeamDetail({
             </div>
           </div>
 
+          {/* Problem Statement Card */}
+          <div className="bg-[#080808] border border-white/5 p-5">
+            <h3 className="font-bold text-xs tracking-widest uppercase text-white/80 mb-4">PROBLEM STATEMENT</h3>
+
+            {teamData.problemStatementId && teamData.problemStatementId.trim() !== "" ? (
+              <div className="mb-4">
+                <p className="text-[10px] font-bold text-white/40 tracking-widest uppercase mb-1">SELECTED PS</p>
+                <div className="bg-white/5 p-3 border border-white/10 mb-2">
+                  <p className="text-xs font-bold text-[#32D583] tracking-wider mb-1">{teamData.problemStatementId}</p>
+                  <p className="text-[11px] text-white/80 leading-tight">
+                    {problemStatements.find(ps => ps.id === teamData.problemStatementId)?.title || "Unknown Problem Statement"}
+                  </p>
+                </div>
+              </div>
+            ) : null}
+
+            <div className="space-y-3">
+              {globalRoundStatus['0'] === 'COMPLETED' ? (
+                <div className="bg-[#DA1204]/10 border border-[#DA1204]/20 p-3 rounded">
+                  <p className="text-[#DA1204] text-[10px] font-bold tracking-widest uppercase">
+                    PS SELECTION LOCKED (ROUND 0 COMPLETED)
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  <label className="text-[9px] font-bold text-white/40 tracking-widest uppercase mb-1 block">UPDATE PS CODE</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="e.g. HCSIT001"
+                      className="flex-1 bg-[#121212] border border-white/10 text-white text-xs px-3 py-2 outline-none focus:border-[#E3495A] transition-colors"
+                      value={psCodeInput}
+                      onChange={(e) => setPsCodeInput(e.target.value.toUpperCase())}
+                    />
+                    <button
+                      onClick={handlePsSubmit}
+                      disabled={isSubmittingPs || !psCodeInput}
+                      className="bg-[#E3495A] text-white text-[10px] font-bold px-3 py-2 border border-[#E3495A] hover:bg-[#E3495A]/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isSubmittingPs ? '...' : 'SUBMIT'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
           <div className="bg-[#080808] border border-white/5 p-5">
             <div className="flex items-center justify-between mb-6">
               <h3 className="font-bold text-xs tracking-widest uppercase text-white/80">{teamData.teamName} SMASHERS</h3>
@@ -307,6 +437,7 @@ export default function TeamDetail({
         onClose={() => setShowPopup(false)}
         roundId={activeRoundId}
         onSubmit={handleSubmission}
+        initialData={popupInitialData}
       />
     </div>
   );

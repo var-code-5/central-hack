@@ -2,7 +2,7 @@
 export async function POST(request: Request) {
   const authHeader = request.headers.get('Authorization');
   const authToken = authHeader?.split(' ')[1];
-  
+
   if (!authToken) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
   }
@@ -22,7 +22,8 @@ export async function POST(request: Request) {
   console.log(rep);
 
   if (!rep.ok) {
-    return new Response(JSON.stringify({ error: 'Failed to update user profile' }), { status: 500 });
+    const errorData = await rep.json().catch(() => ({ error: 'Unknown backend error' }));
+    return new Response(JSON.stringify(errorData), { status: rep.status });
   }
 
   const updatedProfile = await rep.json();
