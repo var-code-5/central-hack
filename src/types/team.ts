@@ -27,6 +27,10 @@ export interface TeamWithDetails {
     problemStatementId: string | null;
     createdAt: string;
     updatedAt: string;
+    round0Status?: string;
+    round1Status?: string;
+    round2Status?: string;
+    round3Status?: string;
 }
 
 // Create Team Response

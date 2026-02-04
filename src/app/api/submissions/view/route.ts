@@ -1,27 +1,35 @@
+import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 
-export async function POST(request: Request) {
-  const authHeader = request.headers.get('Authorization');
-  const authToken = authHeader?.split(' ')[1];
-  
-  if (!authToken) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+export async function GET(request: Request) {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('authToken')?.value;
+
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+    const response = await fetch(`${backendUrl}/api/teams/get-team`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      cache: 'no-store'
+    });
+
+    if (!response.ok) {
+      return NextResponse.json({ error: 'Failed to fetch team data' }, { status: response.status });
+    }
+
+    const data = await response.json();
+
+    // transform data to return 'roundStatus' keyed by round
+    // Backend returns team object with roundXStatus
+    // We can just return the Team object which has everything we need.
+
+    return NextResponse.json(data);
+  } catch (error) {
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
-
-//   const body = await request.json();
-
-  const rep = await fetch(`${process.env.BASE_URL}/submissions/view`, {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${authToken}`,
-      'Content-Type': 'application/json',
-    },
-    // body: JSON.stringify(body),
-  });
-
-  if (!rep.ok) {
-    return new Response(JSON.stringify({ error: 'Failed to update user profile' }), { status: 500 });
-  }
-
-  const updatedProfile = await rep.json();
-  return new Response(JSON.stringify(updatedProfile), { status: 200 });
 }
