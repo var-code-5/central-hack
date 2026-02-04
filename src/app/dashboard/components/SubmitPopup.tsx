@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useToast } from '@/components/ui/Toast';
 
 interface SubmitPopupProps {
     roundId: number; // 0 for Idea Submission (Round 0), others for Round 1+
@@ -16,6 +17,7 @@ interface SubmitPopupProps {
 
 export default function SubmitPopup({ roundId, isOpen, onClose, onSubmit, initialData }: SubmitPopupProps) {
     const [loading, setLoading] = useState(false);
+    const toast = useToast();
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -34,7 +36,7 @@ export default function SubmitPopup({ roundId, isOpen, onClose, onSubmit, initia
                 link3: initialData.links?.[2] || '',
             });
         } else if (isOpen) {
-           
+
             if (!initialData) {
                 setFormData({ title: '', description: '', link1: '', link2: '', link3: '' });
             }
@@ -51,16 +53,16 @@ export default function SubmitPopup({ roundId, isOpen, onClose, onSubmit, initia
 
     const handleSubmit = async () => {
         setLoading(true);
-      
+
         if (!formData.title.trim()) {
-            alert("Please enter a title");
+            toast.error("Please enter a title");
             setLoading(false);
             return;
         }
 
-     
+
         if (!isRoundZero && !formData.link1.trim()) {
-            alert("Github Link is mandatory");
+            toast.error("Github Link is mandatory");
             setLoading(false);
             return;
         }
@@ -75,7 +77,7 @@ export default function SubmitPopup({ roundId, isOpen, onClose, onSubmit, initia
             onClose();
         } catch (e) {
             console.error(e);
-            alert("Failed to submit");
+            toast.error("Failed to submit");
         } finally {
             setLoading(false);
         }
@@ -119,7 +121,7 @@ export default function SubmitPopup({ roundId, isOpen, onClose, onSubmit, initia
 
                     {/* Links Section */}
                     <div className="space-y-4">
-                        
+
                         <div className="space-y-2">
                             <label className="text-[#FB3103] text-xs font-bold tracking-widest uppercase">
                                 {isRoundZero ? 'DRIVE LINK' : 'GITHUB LINK (MANDATORY)'}

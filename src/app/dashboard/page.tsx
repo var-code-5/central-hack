@@ -8,6 +8,8 @@ import type { GetProfileResponse, User as ProfileUser, Gender, CreateProfileResp
 import type { GetTeamResponse, TeamWithDetails } from '@/types/team';
 import { CompleteProfile, CreateTeam, TeamDetail } from './components';
 import { useDashboardContext } from '@/contexts/DashboardContext';
+import { useToast } from '@/components/ui/Toast';
+import ConfirmationModal from '@/components/ui/ConfirmationModal';
 import Image from 'next/image';
 
 export default function Dashboard() {
@@ -19,10 +21,10 @@ export default function Dashboard() {
   const [profileCompleted, setProfileCompleted] = useState<boolean | null>(null);
   const [teamData, setTeamData] = useState<TeamWithDetails | null>(null);
   const [loading, setLoading] = useState(true);
-  const [authLoading, setAuthLoading] = useState(false); // For Google Sign-In button
+  const toast = useToast();
+  const [authLoading, setAuthLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Form state
   const [step, setStep] = useState<'profile' | 'team'>('profile');
   const [isDayBoarder, setIsDayBoarder] = useState(false);
   const [teamName, setTeamName] = useState('');
@@ -38,12 +40,14 @@ export default function Dashboard() {
     branch: '',
   });
 
+  // Confirmation Modal State
+  const [showLeaveModal, setShowLeaveModal] = useState(false);
+
   const supabase = createClient();
 
-  // Update dashboard step for navbar color
   useEffect(() => {
     if (!session) {
-      setDashboardStep(null); // Or define a specific step for landing if needed
+      setDashboardStep(null);
       return;
     }
 
@@ -156,6 +160,8 @@ export default function Dashboard() {
     } catch (err) {
       console.error('Failed to fetch team:', err);
       setTeamData(null);
+      // Optional: keep silent or toast
+      // toast.error("Failed to load team data");
     }
   };
 
@@ -195,8 +201,11 @@ export default function Dashboard() {
       setProfileCompleted(true);
       setProfileData(data.user);
       setStep('team');
+      toast.success('Profile created successfully!');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create profile');
+      const msg = err instanceof Error ? err.message : 'Failed to create profile';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -224,8 +233,11 @@ export default function Dashboard() {
       }
 
       await fetchProfile(session.access_token);
+      toast.success('Team created successfully!');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create team');
+      const msg = err instanceof Error ? err.message : 'Failed to create team';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -253,19 +265,21 @@ export default function Dashboard() {
       }
 
       await fetchProfile(session.access_token);
+      toast.success('Joined team successfully!');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to join team');
+      const msg = err instanceof Error ? err.message : 'Failed to join team';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
   };
 
   const handleLeaveTeam = async () => {
-    if (!session) return;
+    // This function will now be called by the modal's onConfirm
+    // The initial click just opens the modal (handled in TeamDetails render below)
 
-    if (!confirm(profileData?.isTeamLeader ? 'As the leader, leaving will disband the entire team. Are you sure?' : 'Are you sure you want to leave this team?')) {
-      return;
-    }
+    if (!session) return;
 
     try {
       setLoading(true);
@@ -282,8 +296,11 @@ export default function Dashboard() {
       }
 
       await fetchProfile(session.access_token);
+      toast.success(profileData?.isTeamLeader ? 'Team disbanded successfully' : 'Left team successfully');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to leave team');
+      const msg = err instanceof Error ? err.message : 'Failed to leave team';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -309,6 +326,7 @@ export default function Dashboard() {
     } catch (error: any) {
       console.error('Error logging in:', error);
       setError(error.message || 'Failed to sign in with Google');
+      toast.error(error.message || 'Login failed');
       setAuthLoading(false);
     }
   };
@@ -425,12 +443,24 @@ export default function Dashboard() {
             profileData={profileData}
             teamData={teamData}
             user={user}
-            onLeaveTeam={handleLeaveTeam}
+            onLeaveTeam={async () => setShowLeaveModal(true)}
             loading={loading}
             token={session.access_token}
           />
         )}
       </div>
+
+      <ConfirmationModal
+        isOpen={showLeaveModal}
+        onClose={() => setShowLeaveModal(false)}
+        onConfirm={handleLeaveTeam}
+        title={profileData?.isTeamLeader ? "DISBAND TEAM?" : "LEAVE TEAM?"}
+        message={profileData?.isTeamLeader
+          ? "As the leader, leaving will disband the entire team. This action cannot be undone."
+          : "Are you sure you want to leave this team? You will need to join or create a team again."}
+        confirmText={profileData?.isTeamLeader ? "DISBAND" : "LEAVE"}
+        isDangerous={true}
+      />
     </div>
   );
 }

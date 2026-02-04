@@ -5,6 +5,7 @@ import type { User as ProfileUser } from '@/types/profile';
 import type { TeamWithDetails } from '@/types/team';
 import SubmitPopup from './SubmitPopup';
 import { problemStatements } from '../../problem-statements/data';
+import { useToast } from '@/components/ui/Toast';
 
 interface TeamDetailProps {
   profileData: ProfileUser;
@@ -30,6 +31,7 @@ export default function TeamDetail({
   const [isSubmittingPs, setIsSubmittingPs] = useState(false);
   const [popupInitialData, setPopupInitialData] = useState<any>(null);
   const [isFetchingSubmission, setIsFetchingSubmission] = useState(false);
+  const toast = useToast();
 
   useEffect(() => {
     const fetchRoundStatus = async () => {
@@ -43,6 +45,8 @@ export default function TeamDetail({
         }
       } catch (e) {
         console.error("Failed to fetch round status", e);
+        // Silent failure for background fetch is usually okay, but if critical:
+        // toast.error("Failed to load round status");
       }
     };
     fetchRoundStatus();
@@ -133,15 +137,15 @@ export default function TeamDetail({
         })
       });
       if (response.ok) {
-        alert('Submission successful');
+        toast.success('Submission successful');
         window.location.reload();
       } else {
         const errorData = await response.json().catch(() => ({}));
-        alert(`Submission failed: ${errorData.error || 'Unknown error'}`);
+        toast.error(`Submission failed: ${errorData.error || 'Unknown error'}`);
       }
     } catch (e) {
       console.error(e);
-      alert('Error submitting');
+      toast.error('Error submitting');
     }
   };
 
@@ -151,7 +155,7 @@ export default function TeamDetail({
     // Validate if PS code exists in our data
     const isValidPs = problemStatements.some(ps => ps.id === psCodeInput);
     if (!isValidPs) {
-      alert("PS doesn't exists");
+      toast.error("PS doesn't exists");
       return;
     }
 
@@ -167,15 +171,15 @@ export default function TeamDetail({
       });
 
       if (res.ok) {
-        alert("Problem Statement updated successfully!");
+        toast.success("Problem Statement updated successfully!");
         window.location.reload();
       } else {
         const errorData = await res.json();
-        alert(`Failed to update PS: ${errorData.error || 'Unknown error'}`);
+        toast.error(`Failed to update PS: ${errorData.error || 'Unknown error'}`);
       }
     } catch (e) {
       console.error("Error submitting PS", e);
-      alert("Error submitting Problem Statement");
+      toast.error("Error submitting Problem Statement");
     } finally {
       setIsSubmittingPs(false);
     }
@@ -183,7 +187,7 @@ export default function TeamDetail({
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    alert(`Copied: ${text}`);
+    toast.success(`Copied: ${text}`);
   };
 
   return (
@@ -199,7 +203,7 @@ export default function TeamDetail({
 
             <div className="relative flex items-center justify-between px-2">
               <div className="absolute top-4 left-0 right-0 h-[1px] bg-white/10"></div>
-            
+
               <div className="absolute top-4 left-0 w-[22%] h-[1px] bg-[#E3495A]"></div>
 
               {rounds.map((round, i) => {
@@ -270,10 +274,12 @@ export default function TeamDetail({
                             } else {
                               console.error("Failed to fetch submission");
                               setPopupInitialData(null);
+                              toast.error("Failed to load submission data");
                             }
                           } catch (e) {
                             console.error(e);
                             setPopupInitialData(null);
+                            toast.error("Error loading submission");
                           } finally {
                             setIsFetchingSubmission(false);
                           }

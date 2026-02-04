@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from '@/utils/supabase/client';
 import { useDashboardContext } from '@/contexts/DashboardContext';
+import { useToast } from '@/components/ui/Toast';
 
 interface DiagonalNavProps {
     userName?: string;
@@ -18,6 +19,7 @@ const DiagonalNav: React.FC<DiagonalNavProps> = ({ userName, showDashboardNav = 
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const supabase = createClient();
     const { dashboardStep } = useDashboardContext();
+    const toast = useToast();
 
     useEffect(() => {
         const checkUser = async () => {
@@ -66,6 +68,7 @@ const DiagonalNav: React.FC<DiagonalNavProps> = ({ userName, showDashboardNav = 
             router.push('/dashboard'); // Go to dashboard landing instead of login since login redirects
         } catch (error) {
             console.error('Error during logout:', error);
+            toast.error('Failed to sign out');
         }
     };
 
