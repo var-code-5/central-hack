@@ -69,13 +69,19 @@ export default function TeamDetail({
     },
   ].map(r => {
     const globalStatus = globalRoundStatus[r.id] || 'LOCKED';
-    const teamStatus = getTeamRoundStatus(r.id);
+    let teamStatus = getTeamRoundStatus(r.id);
     const isLive = globalStatus === 'LIVE';
+
+    // If the round is live but the team status is still the default 'LOCKED',
+    // it implies they haven't done anything yet, so show 'NOT SUBMITTED'.
+    if (isLive && teamStatus === 'LOCKED') {
+      teamStatus = 'NOT SUBMITTED';
+    }
 
     return {
       ...r,
       status: teamStatus,
-      canSubmit: isLive && teamStatus !== 'QUALIFIED' && teamStatus !== 'NOT_QUALIFIED', // Simplify logic: can submit if round is live and not already decided
+      canSubmit: isLive && teamStatus !== 'QUALIFIED' && teamStatus !== 'NOT_QUALIFIED',
       globalStatus
     };
   });
