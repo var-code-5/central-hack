@@ -115,7 +115,7 @@ export default function SubmitPopup({ roundId, isOpen, onClose, onSubmit, initia
                             value={formData.title}
                             onChange={(e) => handleChange('title', e.target.value)}
                             className="w-full bg-[#1A0505] border border-[#FB3103]/50 text-white px-4 py-3 text-sm focus:outline-none focus:border-[#FB3103] placeholder-white/20 uppercase"
-                            placeholder={isRoundZero ? "REDDY'S HACKERS" : "PROJECT NAME"}
+                            placeholder={isRoundZero ? "IDEA" : "PROJECT NAME"}
                         />
                     </div>
 
@@ -209,7 +209,7 @@ export default function SubmitPopup({ roundId, isOpen, onClose, onSubmit, initia
                             onChange={(e) => handleChange('description', e.target.value)}
                             rows={4}
                             className="w-full bg-[#1A0505] border border-[#FB3103]/50 text-white px-4 py-3 text-sm focus:outline-none focus:border-[#FB3103] placeholder-white/20 uppercase resize-none"
-                            placeholder={isRoundZero ? "REDDY'S HACKERS" : "DESCRIBE YOUR PROJECT..."}
+                            placeholder={isRoundZero ? "DESCRIBE YOUR IDEA..." : "DESCRIBE YOUR PROJECT..."}
                         />
                     </div>
 
