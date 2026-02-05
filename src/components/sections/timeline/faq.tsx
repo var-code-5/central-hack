@@ -47,7 +47,7 @@ const faqData: FAQItem[] = [
     {
         id: '7',
         question: 'Will participants get OD?',
-        answer: 'Yes, participants will get OD throughout the event.',
+        answer: 'Yes, participants will get OD throughout the event.However, OD will not be provided for weekend classes',
     },
     {
         id: '8',
