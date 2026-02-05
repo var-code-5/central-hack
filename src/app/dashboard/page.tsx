@@ -10,6 +10,7 @@ import { CompleteProfile, CreateTeam, TeamDetail } from './components';
 import { useDashboardContext } from '@/contexts/DashboardContext';
 import { useToast } from '@/components/ui/Toast';
 import ConfirmationModal from '@/components/ui/ConfirmationModal';
+import { Loader } from '@/components/ui/Loader';
 import Image from 'next/image';
 
 export default function Dashboard() {
@@ -333,11 +334,7 @@ export default function Dashboard() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen w-screen bg-[#0D0A0A] text-white flex items-center justify-center">
-        <div className="text-xl font-jetbrains-mono text-[#E5310E]">Loading...</div>
-      </div>
-    );
+    return <Loader />;
   }
 
   // Unauthenticated State - Landing UI

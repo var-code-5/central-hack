@@ -6,6 +6,7 @@ import type { TeamWithDetails } from '@/types/team';
 import SubmitPopup from './SubmitPopup';
 import { problemStatements } from '../../problem-statements/data';
 import { useToast } from '@/components/ui/Toast';
+import { Loader } from '@/components/ui/Loader';
 
 interface TeamDetailProps {
   profileData: ProfileUser;
@@ -247,7 +248,7 @@ export default function TeamDetail({
             </div>
 
             {rounds.map((round, index) => (
-                <div key={index} className={`grid grid-cols-1 md:grid-cols-12 gap-4 px-6 py-6 border-b border-white/5 items-start md:items-center ${index === 0 ? 'bg-white/[0.02]' : ''}`}>
+              <div key={index} className={`grid grid-cols-1 md:grid-cols-12 gap-4 px-6 py-6 border-b border-white/5 items-start md:items-center ${index === 0 ? 'bg-white/[0.02]' : ''}`}>
                 <div className="md:col-span-1 text-sm font-bold text-white/60">
                   <span className="md:hidden text-[10px] uppercase text-white/40 mr-2">Round</span>
                   {round.id}
@@ -262,7 +263,7 @@ export default function TeamDetail({
                 </div>
                 <div className="md:col-span-3 flex flex-col md:flex-row md:justify-end">
                   <div className="md:hidden text-[10px] uppercase text-white/40 mb-2">Actions</div>
-                  {round.canSubmit ? (
+                  {round.canSubmit && profileData.isTeamLeader ? (
                     <button
                       onClick={async () => {
                         setActiveRoundId(round.id);
@@ -303,11 +304,11 @@ export default function TeamDetail({
                           : 'bg-[#E3495A] text-white shadow-[#E3495A]/10 hover:bg-[#E3495A]/90'
                         } disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
-                      {isFetchingSubmission ? 'LOADING...' : (round.status === 'SUBMITTED' || round.status === 'UNDER_EVALUATION' ? 'EDIT SUBMISSION' : 'ADD SUBMISSION')}
+                      {isFetchingSubmission ? <Loader fullScreen={false} message="LOADING..." className="py-0" /> : (round.status === 'SUBMITTED' || round.status === 'UNDER_EVALUATION' ? 'EDIT SUBMISSION' : 'ADD SUBMISSION')}
                     </button>
                   ) : (
                     <button className="px-10 py-2.5 border border-white/10 text-white text-[11px] font-bold tracking-wider uppercase hover:bg-white/5 cursor-not-allowed opacity-50">
-                      {round.globalStatus === 'LOCKED' ? 'LOCKED' : 'VIEW'}
+                      {round.globalStatus === 'LOCKED' ? 'LOCKED' : (!profileData.isTeamLeader && round.canSubmit ? 'LEADER ONLY' : 'VIEW')}
                     </button>
                   )}
                 </div>
@@ -389,22 +390,28 @@ export default function TeamDetail({
               ) : (
                 <div>
                   <label className="text-[9px] font-bold text-white/40 tracking-widest uppercase mb-1 block">UPDATE PS CODE</label>
-                  <div className="flex flex-col sm:flex-row gap-2">
-                    <input
-                      type="text"
-                      placeholder="e.g. HCSIT001"
-                      className="flex-1 bg-[#121212] border border-white/10 text-white text-xs px-3 py-2 outline-none focus:border-[#E3495A] transition-colors"
-                      value={psCodeInput}
-                      onChange={(e) => setPsCodeInput(e.target.value.toUpperCase())}
-                    />
-                    <button
-                      onClick={handlePsSubmit}
-                      disabled={isSubmittingPs || !psCodeInput}
-                      className="bg-[#E3495A] text-white text-[10px] font-bold px-3 py-2 border border-[#E3495A] hover:bg-[#E3495A]/90 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isSubmittingPs ? '...' : 'SUBMIT'}
-                    </button>
-                  </div>
+                  {profileData.isTeamLeader ? (
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <input
+                        type="text"
+                        placeholder="e.g. HCSIT001"
+                        className="flex-1 bg-[#121212] border border-white/10 text-white text-xs px-3 py-2 outline-none focus:border-[#E3495A] transition-colors"
+                        value={psCodeInput}
+                        onChange={(e) => setPsCodeInput(e.target.value.toUpperCase())}
+                      />
+                      <button
+                        onClick={handlePsSubmit}
+                        disabled={isSubmittingPs || !psCodeInput}
+                        className="bg-[#E3495A] text-white text-[10px] font-bold px-3 py-2 border border-[#E3495A] hover:bg-[#E3495A]/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isSubmittingPs ? '...' : 'SUBMIT'}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="bg-white/5 p-3 border border-white/10 text-[10px] text-white/40 uppercase font-bold tracking-widest">
+                      ONLY TEAM LEADER CAN UPDATE PS
+                    </div>
+                  )}
                 </div>
               )}
             </div>

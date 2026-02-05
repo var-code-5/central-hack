@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo } from 'react';
 import Image from 'next/image';
+import { Loader } from '@/components/ui/Loader';
 import { branches, schools, mhBlocks, lhBlocks } from '../constants';
 import type { Gender } from '@/types/profile';
 import { useToast } from '@/components/ui/Toast';
@@ -31,16 +32,16 @@ interface CompleteProfileProps {
 // Helper function to parse Google display name
 function parseDisplayName(displayName: string): { name: string; regNo: string } {
   if (!displayName) return { name: '', regNo: '' };
-  
+
   const firstDigitIndex = displayName.search(/\d/);
-  
+
   if (firstDigitIndex === -1) {
     return { name: displayName.trim(), regNo: '' };
   }
-  
+
   const name = displayName.substring(0, firstDigitIndex).trim();
   const regNo = displayName.substring(firstDigitIndex).trim().toUpperCase();
-  
+
   return { name, regNo };
 }
 
@@ -55,13 +56,13 @@ export default function CompleteProfile({
   onGoBack,
 }: CompleteProfileProps) {
   const toast = useToast();
-  
+
   // Parse display name and auto-fill on mount
   useEffect(() => {
     if (user?.user_metadata?.full_name || user?.user_metadata?.name) {
       const displayName = user.user_metadata.full_name || user.user_metadata.name || '';
       const { name, regNo } = parseDisplayName(displayName);
-      
+
       if (!formData.name && !formData.regNo) {
         setFormData(prev => ({
           ...prev,
@@ -92,8 +93,8 @@ export default function CompleteProfile({
   // Clear hostel block when gender changes
   useEffect(() => {
     if (formData.gender && !isDayBoarder) {
-      const validBlocks = formData.gender === 'MALE' ? mhBlocks : 
-                          formData.gender === 'FEMALE' ? lhBlocks : [];
+      const validBlocks = formData.gender === 'MALE' ? mhBlocks :
+        formData.gender === 'FEMALE' ? lhBlocks : [];
       if (formData.hostelBlock && !validBlocks.includes(formData.hostelBlock) && formData.hostelBlock !== 'DS') {
         setFormData(prev => ({ ...prev, hostelBlock: '' }));
       }
@@ -105,7 +106,7 @@ export default function CompleteProfile({
     if (isDayBoarder) return [];
     if (formData.gender === 'MALE') return mhBlocks;
     if (formData.gender === 'FEMALE') return lhBlocks;
-    return []; 
+    return [];
   }, [formData.gender, isDayBoarder]);
 
   const getMissingFieldMessage = (): string | null => {
@@ -134,7 +135,7 @@ export default function CompleteProfile({
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen w-full bg-[#0D0A0A] overflow-x-hidden pb-4">
-      
+
       {/* ---------------------------------------------------------------------------
           Left Side - Card Preview 
           Adjusted: Flex column on mobile, sticky/fixed height feel not strictly enforced to allow scrolling on small screens
@@ -142,29 +143,29 @@ export default function CompleteProfile({
       <div className='hidden lg:block lg:w-1/2'></div>
       <div className="hidden w-full lg:w-1/2 md:flex items-center justify-center p-4 md:p-8 lg:p-12 md:fixed lg:top-0 lg:h-screen">
         <div className="relative border-4 border-[#E5310E]/30 rounded-lg w-full max-w-[450px] shadow-2xl shadow-[#E5310E]/10 transition-transform duration-300 hover:scale-[1.02]">
-          
+
           <div className="bg-[#E5310E] p-6 md:p-8 aspect-[3/4] md:aspect-[4/5] flex flex-col justify-between rounded-md relative overflow-hidden">
-            
+
             {/* Background Texture/Pattern overlay (Optional visual enhancement) */}
             <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('/noise.png')] pointer-events-none"></div>
 
             {/* User Card Image */}
             <div className="flex items-center justify-center flex-1 z-10 my-4">
               <div className="relative w-[280px] h-[280px] md:w-[320px] md:h-[200px] flex items-center justify-center">
-                <Image 
-                  src="/dashboard/user-card-img.svg" 
-                  alt="User" 
-                  width={350} 
+                <Image
+                  src="/dashboard/user-card-img.svg"
+                  alt="User"
+                  width={350}
                   height={200}
                   className="w-full h-auto object-contain opacity-90 drop-shadow-xl"
                   priority
                 />
               </div>
             </div>
-            
+
             {/* User Info - Consistent Typography */}
             <div className="mt-auto z-10 space-y-5 text-white font-jetbrains-mono border-t border-white/20 pt-6">
-              
+
               {/* Name Section */}
               <div>
                 <p className="text-[10px] md:text-xs opacity-75 uppercase tracking-wider mb-1">NAME</p>
@@ -175,7 +176,7 @@ export default function CompleteProfile({
 
               {/* Grid for Email, Hostel, RegNo to ensure consistent alignment and sizing */}
               <div className="grid grid-cols-2 gap-y-5 gap-x-4">
-                
+
                 <div className="col-span-2">
                   <p className="text-[10px] md:text-xs opacity-75 uppercase tracking-wider mb-1">EMAIL</p>
                   <p className="text-sm md:text-base font-bold truncate opacity-90">
@@ -396,7 +397,7 @@ export default function CompleteProfile({
                 disabled={loading}
                 className="flex-1 px-8 py-3 bg-[#E5310E]/90 cursor-pointer text-white font-jetbrains-mono text-sm md:text-base uppercase hover:bg-[#E5310E] transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded-sm"
               >
-                {loading ? 'Creating...' : 'Next'}
+                {loading ? <Loader fullScreen={false} message="CREATING..." className="py-1" /> : 'Next'}
               </button>
             </div>
           </div>

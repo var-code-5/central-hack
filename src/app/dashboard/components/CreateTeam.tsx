@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
+import { Loader } from '@/components/ui/Loader';
 
 interface CreateTeamProps {
   teamName: string;
@@ -94,7 +95,7 @@ export default function CreateTeam({
                   disabled={loading || !teamName.trim()}
                   className="w-full px-8 py-3 bg-[#B85C5C] text-white font-jetbrains-mono uppercase hover:bg-[#E5310E] transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-[#B85C5C]"
                 >
-                  {loading && teamName ? 'Creating...' : 'Create Team'}
+                  {loading && teamName ? <Loader fullScreen={false} message="CREATING..." className="py-1" /> : 'CREATE TEAM'}
                 </button>
               </div>
             </div>
@@ -127,7 +128,7 @@ export default function CreateTeam({
                   disabled={loading || !teamCode.trim()}
                   className="w-full px-8 py-3 bg-transparent border border-[#E5310E] text-[#E5310E] font-jetbrains-mono uppercase hover:bg-[#E5310E] hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[#E5310E]"
                 >
-                  {loading && teamCode ? 'Joining...' : 'Join Team'}
+                  {loading && teamCode ? <Loader fullScreen={false} message="JOINING..." className="py-1" /> : 'JOIN TEAM'}
                 </button>
               </div>
             </div>
