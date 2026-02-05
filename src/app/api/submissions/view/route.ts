@@ -10,8 +10,8 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
-    const response = await fetch(`${backendUrl}/api/submissions/view`, {
+    const backendUrl = process.env.BASE_URL || 'http://localhost:8000';
+    const response = await fetch(`${backendUrl}/submissions/view`, {
       headers: {
         'Authorization': `Bearer ${token}`
       },
