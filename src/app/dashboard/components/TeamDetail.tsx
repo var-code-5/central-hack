@@ -66,18 +66,18 @@ export default function TeamDetail({
     },
     {
       id: 1,
-      name: 'Round 1',
-      description: '',
+      name: 'Progress Submission',
+      description: 'Checking the progress of your project with a prototype or demo.',
     },
     {
       id: 2,
-      name: 'Round 2',
-      description: '',
+      name: 'Elimination Round',
+      description: 'Projects will be evaluated based on their innovation and progress.',
     },
     {
       id: 3,
-      name: 'Round 3',
-      description: '',
+      name: 'Elimination And Final Pitch',
+      description: 'Final Clash of Innovators! The best teams will present their projects to a panel of judges.',
     },
   ].map(r => {
     const globalStatus = globalRoundStatus[r.id] || 'LOCKED';
@@ -204,25 +204,53 @@ export default function TeamDetail({
             <h2 className="text-white font-extrabold text-2xl mb-6 sm:mb-10 tracking-tight uppercase">THE TIMELINE</h2>
 
             <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 sm:gap-0 px-2">
+              {/* Background line */}
               <div className="hidden sm:block absolute top-4 left-0 right-0 h-[1px] bg-white/10"></div>
 
-              <div className="hidden sm:block absolute top-4 left-0 w-[22%] h-[1px] bg-[#E3495A]"></div>
+              {/* Dynamic progress line */}
+              <div 
+                className="hidden sm:block absolute top-4 left-0 h-[1px] bg-[#E3495A] transition-all duration-700 ease-in-out"
+                style={{
+                  width: `${(() => {
+                    const completedRounds = rounds.filter(r => r.globalStatus === 'COMPLETED').length;
+                    const liveRoundIndex = rounds.findIndex(r => r.globalStatus === 'LIVE');
+                    const totalRounds = rounds.length;
+                    
+                    if (completedRounds === totalRounds) return '100%';
+                    if (liveRoundIndex === -1 && completedRounds === 0) return '0%';
+                    
+                    // Calculate progress: each round segment is (100 / (totalRounds - 1))%
+                    // We divide by (totalRounds - 1) because we have (n-1) segments between n points
+                    const segmentWidth = 100 / (totalRounds - 1);
+                    
+                    // Completed rounds contribute full segments
+                    let progress = completedRounds * segmentWidth;
+                    
+                    // If there's a live round, add half a segment to reach its midpoint
+                    if (liveRoundIndex !== -1) {
+                      progress = liveRoundIndex * segmentWidth + (segmentWidth * 0.5);
+                    }
+                    
+                    return `${Math.min(progress, 100)}%`;
+                  })()}`
+                }}
+              />
 
               {rounds.map((round, i) => {
                 const isDone = round.globalStatus === 'COMPLETED';
                 const isCurrent = round.globalStatus === 'LIVE';
                 return (
                   <div key={i} className="relative flex flex-col items-center z-10">
-                    <div className={`w-8 h-8 flex items-center justify-center border ${isDone ? 'bg-[#E3495A] border-[#E3495A]' : isCurrent ? 'bg-[#080808] border-[#E3495A]' : 'bg-[#080808] border-white/20'}`}>
+                    <div className={`w-8 h-8 flex items-center justify-center border transition-all duration-300 ${isDone ? 'bg-[#E3495A] border-[#E3495A]' : isCurrent ? 'bg-[#080808] border-[#E3495A] shadow-lg shadow-[#E3495A]/50' : 'bg-[#080808] border-white/20'}`}>
                       {isDone && (
                         <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
                       )}
-                      {isCurrent && <div className="w-2 h-2 bg-[#E3495A]"></div>}
+                      {isCurrent && <div className="w-2 h-2 bg-[#E3495A] animate-pulse"></div>}
                     </div>
                     <div className="mt-4 text-center">
-                      <p className={`text-[10px] font-bold tracking-widest ${isCurrent ? 'text-[#E3495A]' : 'text-white/40'}`}>{round.name}</p>
+                      <p className={`text-[10px] font-bold tracking-widest transition-colors duration-300 ${isCurrent ? 'text-[#E3495A]' : 'text-white/40'}`}>{round.name}</p>
                     </div>
                   </div>
                 );
@@ -241,10 +269,10 @@ export default function TeamDetail({
             </div>
 
             <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-3 border-y border-white/5 text-[10px] font-bold text-white/40 uppercase tracking-widest">
-              <div className="col-span-1 flex items-center gap-2">ROUND <span className="text-[8px]">NO</span></div>
-              <div className="col-span-5 flex items-center gap-2">ROUND INFO <span className="text-[8px]">⇅</span></div>
-              <div className="col-span-3 flex items-center gap-2">STATUS <span className="text-[8px]">⇅</span></div>
-              <div className="col-span-3 flex items-center gap-2 text-right">ACTIONS <span className="text-[8px]">⇅</span></div>
+              <div className="col-span-1 flex items-center gap-2">ROUND</div>
+              <div className="col-span-5 flex items-center gap-2">ROUND INFO</div>
+              <div className="col-span-3 flex items-center gap-2">STATUS</div>
+              <div className="col-span-3 flex items-center gap-2">ACTIONS</div>
             </div>
 
             {rounds.map((round, index) => (
