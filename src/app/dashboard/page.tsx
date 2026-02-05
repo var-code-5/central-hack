@@ -311,13 +311,14 @@ export default function Dashboard() {
       setAuthLoading(true);
       setError(null);
 
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
+            hd: 'vitstudent.ac.in',
           },
         },
       });
