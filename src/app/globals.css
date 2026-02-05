@@ -9,6 +9,7 @@
   --c-green: #50BE6A;
   --c-yellow: #C8A83C;
   --c-red: #E74C3C;
+  --c-home-blue: #A2B4FB;
 }
 
 @theme inline {
@@ -20,7 +21,19 @@
   --color-c-yellow: var(--c-yellow);
   --color-c-green: var(--c-green);
   --color-c-red: var(--c-red);
+  --color-c-home-blue: var(--c-home-blue);
   --font-space-grotesk: var(--font-space-grotesk);
   --font-jetbrains-mono: var(--font-jetbrains-mono);
 }
 
+.plus-background-container {
+  /* Using a Data URI for a small, transparent SVG of a plus sign */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Ctext x='0' y='14' font-size='16' fill='%23191D33'%3E%2B%3C/text%3E%3C/svg%3E");
+  background-repeat: repeat;
+  /* This makes the pattern tile across the element */
+  /* Other styles for the container */
+  height: 100vh;
+  width: 100vw;
+  color: #191D33;
+  padding: 20px;
+}

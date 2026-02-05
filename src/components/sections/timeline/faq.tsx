@@ -11,33 +11,49 @@ interface FAQItem {
 const faqData: FAQItem[] = [
     {
         id: '1',
-        question: 'What is a hackathon?',
-        answer:
-            'A hackathon is a timed event where people collaborate to build prototypes or solutions—typically software or hardware—around a theme or set of challenges.',
+        question: 'Is the hackathon free to attend?',
+        answer: 'Yes, the hackathon is completely free to attend. There is no registration fee.',
     },
     {
         id: '2',
-        question: 'Who can participate?',
+        question: 'How many team members are allowed?',
         answer:
-            'Anyone interested in building or learning—developers, designers, product thinkers, students, and professionals. Some events may have eligibility rules; check the event page.',
+            'Each team must have 3-5 members. At least one woman team member is mandatory in every team.',
     },
     {
         id: '3',
-        question: 'Do I need a team?',
+        question: "I don't have much coding experience. Can I still participate?",
         answer:
-            'Teams are recommended but not required. Most hackathons offer team formation channels before and during the event.',
+            'Absolutely! Hackathons are about learning, building, and collaborating. Participants from all skill levels are welcome. Designers, managers, and beginners can also contribute meaningfully to a team.',
     },
     {
         id: '4',
-        question: 'What should I bring?',
+        question: 'Will there be mentorship during the hackathon?',
         answer:
-            'A laptop, charger, optional peripherals, and any tools or datasets you plan to use. If in person, bring ID and anything needed for comfort.',
+            'Yes, mentors will be available throughout the event to guide teams, help refine ideas, and provide technical support.',
     },
     {
         id: '5',
-        question: 'Can I use existing code or libraries?',
+        question: 'What should we bring to the hackathon?',
         answer:
-            'Yes, unless the rules specify otherwise. Use open-source libraries and your prior work, but disclose what you reused in your submission.',
+            'Participants should bring their laptops, chargers, and student ID. Internet access and basic facilities will be provided.',
+    },
+    {
+        id: '6',
+        question: 'Will hardware components be provided for Hardware tracks?',
+        answer:
+            'Based on the requirement and availability, your required hardware components will be provided.',
+    },
+    {
+        id: '7',
+        question: 'Are there any theme restrictions?',
+        answer:
+            'Yes, projects must align with the announced tracks and problem statements. Detailed guidelines will be shared before the event.',
+    },
+    {
+        id: '8',
+        question: 'Will participants get OD?',
+        answer: 'Yes, participants will get OD throughout the event.',
     },
 ];
 

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Navbar from "@/components/navbar";
+import { DashboardProvider } from "@/contexts/DashboardContext";
+import { ToastProvider } from "@/components/ui/Toast";
 
 const jetBrainsMono = localFont({
   src: "./fonts/JetBrainsMono-2.304/fonts/variable/JetBrainsMono[wght].ttf",
@@ -30,8 +32,12 @@ export default function RootLayout({
       <body
         className={`${jetBrainsMono.variable} ${spaceGrotesk.variable} antialiased`}
       >
-        <Navbar />
-        {children}
+        <DashboardProvider>
+          <ToastProvider>
+            <Navbar />
+            {children}
+          </ToastProvider>
+        </DashboardProvider>
       </body>
     </html>
   );

@@ -1,11 +1,41 @@
 'use client';
 import React, { useEffect, useMemo, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
+import { createClient } from '@/utils/supabase/client';
+import { useDashboardContext } from '@/contexts/DashboardContext';
+import { useToast } from '@/components/ui/Toast';
 
-const DiagonalNav: React.FC = () => {
+interface DiagonalNavProps {
+    userName?: string;
+    showDashboardNav?: boolean;
+}
+
+const DiagonalNav: React.FC<DiagonalNavProps> = ({ userName, showDashboardNav = false }) => {
     const pathname = usePathname() || "/";
+    const router = useRouter();
     const [open, setOpen] = useState(false);
+    const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const supabase = createClient();
+    const { dashboardStep } = useDashboardContext();
+    const toast = useToast();
+
+    useEffect(() => {
+        const checkUser = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            setIsLoggedIn(!!session);
+        };
+        checkUser();
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setIsLoggedIn(!!session);
+        });
+
+        return () => {
+            subscription.unsubscribe();
+        };
+    }, [supabase]);
 
     const colorClasses = useMemo(() => {
         if (pathname.startsWith("/problem-statements")) {
@@ -15,10 +45,32 @@ const DiagonalNav: React.FC = () => {
             return { bg: "bg-c-green", border: "border-c-green", bodyBg: "bg-c-green" };
         }
         if (pathname.startsWith("/login")) {
-            return { bg: "bg-c-red", border: "border-c-red", bodyBg: "bg-c-red" };
+            return { bg: "bg-[#E5310E]", border: "border-[#E5310E]", bodyBg: "bg-[#E5310E]" };
+        }
+        if (pathname.startsWith("/dashboard")) {
+            // Only show pink when user has team (team-detail step)
+            if (dashboardStep === 'team-detail') {
+                return { bg: "bg-[#E3495A]", border: "border-[#E3495A]", bodyBg: "bg-[#E3495A]" };
+            }
+            // Orange for profile and team creation steps
+            return { bg: "bg-[#E5310E]", border: "border-[#E5310E]", bodyBg: "bg-[#E5310E]" };
         }
         return { bg: "bg-c-blue", border: "border-c-blue", bodyBg: "bg-c-blue" };
-    }, [pathname]);
+    }, [pathname, dashboardStep]);
+
+    const isDashboard = pathname.startsWith("/dashboard");
+
+    const handleLogout = async () => {
+        try {
+            await fetch('/auth/logout', { method: 'POST' });
+            await supabase.auth.signOut();
+            setIsLoggedIn(false);
+            router.push('/dashboard'); // Go to dashboard landing instead of login since login redirects
+        } catch (error) {
+            console.error('Error during logout:', error);
+            toast.error('Failed to sign out');
+        }
+    };
 
     useEffect(() => {
         document.body.classList.add(colorClasses.bodyBg);
@@ -33,7 +85,85 @@ const DiagonalNav: React.FC = () => {
     // Close mobile menu on route change
     useEffect(() => {
         setOpen(false);
+        setUserDropdownOpen(false);
     }, [pathname]);
+
+    // Dashboard-style navbar when user has team
+    if (showDashboardNav && isDashboard) {
+        return (
+            <nav className="fixed top-0 left-0 w-full z-[100]">
+                <div className="flex items-center h-14 px-4">
+                    {/* Logo area */}
+                    <div className="flex -space-x-4 mr-8">
+                        <div className={`h-10 w-28 ${bgClass} clip-path-nav`}></div>
+                        <div className={`h-10 w-10 ${bgClass} clip-path-nav-2`}></div>
+                        <div className={`h-10 w-10 ${bgClass} clip-path-nav-2`}></div>
+                    </div>
+
+                    {/* Dashboard Navigation Tabs */}
+                    <div className="hidden md:flex font-space-grotesk uppercase font-bold h-full items-center flex-1">
+                        <Link
+                            href="/dashboard"
+                            className={`h-full flex items-center text-white px-6 ${bgClass} hover:opacity-90 transition-opacity`}
+                        >
+                            Dashboard
+                        </Link>
+                        <Link
+                            href="/"
+                            className="h-full flex items-center text-white px-6 bg-[#4A4A5A] hover:bg-[#5A5A6A] transition-colors"
+                        >
+                            Home
+                        </Link>
+                        <Link
+                            href="/problem-statements"
+                            className="h-full flex items-center text-white px-6 bg-[#4A4A5A] hover:bg-[#5A5A6A] transition-colors"
+                        >
+                            Tracks
+                        </Link>
+                        <Link
+                            href="/timeline"
+                            className="h-full flex items-center text-white px-6 bg-[#4A4A5A] hover:bg-[#5A5A6A] transition-colors"
+                        >
+                            Timeline
+                        </Link>
+                    </div>
+
+                    {/* User Dropdown */}
+                    <div className="relative ml-auto">
+                        <button
+                            onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                            className="flex items-center gap-2 px-4 py-2 bg-[#4A4A5A] hover:bg-[#5A5A6A] transition-colors text-white font-space-grotesk"
+                        >
+                            <span className="truncate max-w-[120px]">{userName || 'User'}</span>
+                            <svg className={`w-4 h-4 transition-transform ${userDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        {userDropdownOpen && (
+                            <div className="absolute right-0 top-full mt-1 bg-[#1A1A2E] border border-[#3D3D5C] rounded shadow-lg z-50">
+                                <button
+                                    onClick={handleLogout}
+                                    className="w-full px-4 py-2 text-left text-white hover:bg-[#E3495A] transition-colors font-jetbrains-mono"
+                                >
+                                    LOGOUT
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+                <div className={`h-1 w-full ${bgClass}`}></div>
+
+                <style>{`
+                    .clip-path-nav {
+                        clip-path: polygon(0 0, 75% 0, 100% 100%, 0 100%);
+                    }
+                    .clip-path-nav-2 {
+                        clip-path: polygon(0 0, 35% 0, 100% 100%, 65% 100%);
+                    }
+                `}</style>
+            </nav>
+        );
+    }
 
     return (
         <nav className="fixed top-5 left-[2.5vw] w-full max-w-[95vw] z-[100]">
@@ -49,7 +179,16 @@ const DiagonalNav: React.FC = () => {
                     <Link href="/" className={`border-x-4 ${borderClass} ${pathname === "/" ? bgClass : ""} h-full flex items-center text-white px-2 hover:opacity-80 transition-opacity`}>Home</Link>
                     <Link href="/problem-statements" className={`${borderClass} ${pathname.startsWith("/problem-statements") ? bgClass : ""} h-full flex items-center text-white px-2 hover:opacity-80 transition-opacity`}>Problem Statements</Link>
                     <Link href="/timeline" className={`border-x-4 ${borderClass} ${pathname.startsWith("/timeline") ? bgClass : ""} h-full flex items-center text-white px-2 hover:opacity-80 transition-opacity`}>Timeline</Link>
-                    <Link href="/login" className={`border-r-4 ${borderClass} ${pathname.startsWith("/login") ? bgClass : ""} h-full flex items-center text-white px-2 hover:opacity-80 transition-opacity`}>Login</Link>
+                    {isDashboard && isLoggedIn ? ( // Desktop
+                        <button
+                            onClick={handleLogout}
+                            className={`border-r-4 ${borderClass} ${bgClass} h-full flex items-center text-white px-2 hover:opacity-80 transition-opacity`}
+                        >
+                            LOGOUT
+                        </button>
+                    ) : (
+                        <Link href="/dashboard" className={`border-r-4 ${borderClass} ${pathname.startsWith("/login") ? bgClass : ""} h-full flex items-center text-white px-2 hover:opacity-80 transition-opacity`}>DASHBOARD</Link>
+                    )}
                 </div>
 
                 {/* Mobile hamburger */}
@@ -78,7 +217,17 @@ const DiagonalNav: React.FC = () => {
                     <Link href="/" className={`px-4 py-3 border-b ${borderClass} ${pathname === "/" ? bgClass : ""} hover:opacity-80 transition-opacity`}>Home</Link>
                     <Link href="/problem-statements" className={`px-4 py-3 border-b ${borderClass} ${pathname.startsWith("/problem-statements") ? bgClass : ""} hover:opacity-80 transition-opacity`}>Problem Statements</Link>
                     <Link href="/timeline" className={`px-4 py-3 border-b ${borderClass} ${pathname.startsWith("/timeline") ? bgClass : ""} hover:opacity-80 transition-opacity`}>Timeline</Link>
-                    <Link href="/login" className={`px-4 py-3 ${pathname.startsWith("/login") ? bgClass : ""} hover:opacity-80 transition-opacity`}>Login</Link>
+                    {isDashboard && isLoggedIn ? (
+                        <button
+                            onClick={handleLogout}
+                            className={`px-4 py-3 ${bgClass} hover:opacity-80 transition-opacity text-left`}
+                        >
+                            Logout
+                        </button>
+                    ) : (
+                        <Link href="/dashboard" className={`px-4 py-3 ${pathname.startsWith("/login") ? bgClass : ""} hover:opacity-80 transition-opacity`}>DASHBOARD</Link>
+                    )}
+
                 </div>
             </div>
 
