@@ -52,12 +52,12 @@ export default function page() {
                         "<span className="text-white">Leveraging Web3 for</span> Social Responsibility"
                     </h1>
                     <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 text-base sm:text-lg md:text-xl">
-                        <Link href="/#">
+                        <Link href="/#problems">
                             <button className="bg-c-purple/20 text-white px-4 py-2 border-b-2 border-c-yellow w-full sm:w-auto">
                                 Problem Statements
                             </button>
                         </Link>
-                        <Link href="/#">
+                        <Link href="/dashboard">
                             <button className="bg-c-purple/20 text-white px-4 py-2 border-b-2 border-c-yellow w-full sm:w-auto">
                                 Submit Solution
                             </button>
@@ -67,7 +67,7 @@ export default function page() {
             </div>
 
             {/* problem Statements */}
-            <div className="min-h-screen w-full bg-c-purple/20">
+            <div className="min-h-screen w-full bg-c-purple/20" id='problems'>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8 justify-items-center px-4 sm:px-6 md:px-8 py-10 md:py-16">
                     {currentStatements.map((ps) => (
                         <PSCard key={ps.id} {...ps} />
