@@ -18,42 +18,41 @@ const faqData: FAQItem[] = [
         id: '2',
         question: 'How many team members are allowed?',
         answer:
-            'Each team must have 3-5 members. At least one woman team member is mandatory in every team.',
+            'Each team must have 2-5 members. At least one woman team member is mandatory in every team.',
     },
     {
         id: '3',
         question: "I don't have much coding experience. Can I still participate?",
         answer:
-            'Absolutely! Hackathons are about learning, building, and collaborating. Participants from all skill levels are welcome. Designers, managers, and beginners can also contribute meaningfully to a team.',
+            'Absolutely! Hackathons are about learning, building, and collaborating. Participants from all skill levels are welcome.',
     },
     {
         id: '4',
-        question: 'Will there be mentorship during the hackathon?',
-        answer:
-            'Yes, mentors will be available throughout the event to guide teams, help refine ideas, and provide technical support.',
-    },
-    {
-        id: '5',
         question: 'What should we bring to the hackathon?',
         answer:
             'Participants should bring their laptops, chargers, and student ID. Internet access and basic facilities will be provided.',
     },
     {
-        id: '6',
+        id: '5',
         question: 'Will hardware components be provided for Hardware tracks?',
         answer:
             'Based on the requirement and availability, your required hardware components will be provided.',
     },
     {
-        id: '7',
+        id: '6',
         question: 'Are there any theme restrictions?',
         answer:
             'Yes, projects must align with the announced tracks and problem statements. Detailed guidelines will be shared before the event.',
     },
     {
-        id: '8',
+        id: '7',
         question: 'Will participants get OD?',
-        answer: 'Yes, participants will get OD throughout the event.',
+        answer: 'Yes, participants will get OD throughout the event.However, OD will not be provided for weekend classes',
+    },
+    {
+        id: '8',
+        question: 'Have any more queries?',
+        answer: 'If you have any further doubts, feel free to ask your questions on our email yantra.sw@vit.ac.in',
     },
 ];
 
