@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
     try {
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
-        const response = await fetch(`${backendUrl}/api/rounds/status`, {
+        const backendUrl = process.env.BASE_URL || 'http://localhost:8000';
+        const response = await fetch(`${backendUrl}/rounds/status`, {
             cache: 'no-store'
         });
 
