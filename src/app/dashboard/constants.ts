@@ -93,6 +93,8 @@ export const mhBlocks = Array.from({ length: 20 }, (_, i) => `MH-${String.fromCh
   (block) => !["MH-I", "MH-O"].includes(block)
 );
 
+mhBlocks.push("D-Annex", "M-Annex", "N-Annex");
+
 export const lhBlocks = Array.from({ length: 10 }, (_, i) => `LH-${String.fromCharCode(65 + i)}`).filter(
   (block) => block !== "LH-I"
 );
