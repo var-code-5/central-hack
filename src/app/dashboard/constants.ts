@@ -97,4 +97,6 @@ export const lhBlocks = Array.from({ length: 10 }, (_, i) => `LH-${String.fromCh
   (block) => block !== "LH-I"
 );
 
+lhBlocks.push("RJT", "E-Annex", "B-Annex", "G-Annex");
+
 export const allHostelBlocks = [...mhBlocks, ...lhBlocks, "Day Boarder"];
