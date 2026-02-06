@@ -18,7 +18,7 @@ const faqData: FAQItem[] = [
         id: '2',
         question: 'How many team members are allowed?',
         answer:
-            'Each team must have 2-5 members. At least one woman team member is mandatory in every team.',
+            'Each team must have 3-5 members. At least one woman team member is mandatory in every team.',
     },
     {
         id: '3',
