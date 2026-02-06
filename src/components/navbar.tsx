@@ -94,10 +94,15 @@ const DiagonalNav: React.FC<DiagonalNavProps> = ({ userName, showDashboardNav = 
             <nav className="fixed top-0 left-0 w-full z-[100]">
                 <div className="flex items-center h-14 px-4">
                     {/* Logo area */}
-                    <div className="flex -space-x-4 mr-8">
-                        <div className={`h-10 w-28 ${bgClass} clip-path-nav`}></div>
-                        <div className={`h-10 w-10 ${bgClass} clip-path-nav-2`}></div>
-                        <div className={`h-10 w-10 ${bgClass} clip-path-nav-2`}></div>
+                    <div className="flex items-center gap-4 mr-8">
+                        <div className="flex -space-x-4">
+                            <div className={`h-10 w-28 ${bgClass} clip-path-nav`}></div>
+                            <div className={`h-10 w-10 ${bgClass} clip-path-nav-2`}></div>
+                            <div className={`h-10 w-10 ${bgClass} clip-path-nav-2`}></div>
+                        </div>
+                        <span className="font-space-grotesk font-bold text-white text-[13px] md:text-xl uppercase whitespace-nowrap">
+                            YANTRA CENTRAL HACK
+                        </span>
                     </div>
 
                     {/* Dashboard Navigation Tabs */}
@@ -168,10 +173,15 @@ const DiagonalNav: React.FC<DiagonalNavProps> = ({ userName, showDashboardNav = 
     return (
         <nav className="fixed top-5 left-[2.5vw] w-full max-w-[95vw] z-[100]">
             <div className="flex justify-between items-center">
-                <div className="flex -space-x-4">
-                    <div className={`h-10 w-28 ${bgClass} clip-path-nav`}></div>
-                    <div className={`h-10 w-10 ${bgClass} clip-path-nav-2`}></div>
-                    <div className={`h-10 w-10 ${bgClass} clip-path-nav-2`}></div>
+                <div className="flex items-center gap-2 md:gap-4">
+                    <div className="flex -space-x-4">
+                        <div className={`h-10 w-28 ${bgClass} clip-path-nav`}></div>
+                        <div className={`h-10 w-10 ${bgClass} clip-path-nav-2`}></div>
+                        <div className={`h-10 w-10 ${bgClass} clip-path-nav-2`}></div>
+                    </div>
+                    <span className="font-space-grotesk font-bold text-white text-[13px] md:text-xl uppercase whitespace-nowrap">
+                        YANTRA CENTRAL HACK
+                    </span>
                 </div>
 
                 {/* Desktop links */}
@@ -196,13 +206,13 @@ const DiagonalNav: React.FC<DiagonalNavProps> = ({ userName, showDashboardNav = 
                     aria-label="Toggle navigation"
                     aria-expanded={open}
                     onClick={() => setOpen((v) => !v)}
-                    className={`md:hidden h-10 w-10 flex items-center justify-center rounded border ${borderClass} text-white`}
+                    className={`md:hidden h-8 w-8 flex items-center justify-center rounded border ${borderClass} text-white`}
                 >
-                    <span className="sr-only">Menu</span>
+                    <span className="sr-only mt-1">Menu</span>
                     <div className="space-y-1.5">
-                        <span className={`block h-0.5 w-6 ${bgClass}`}></span>
-                        <span className={`block h-0.5 w-6 ${bgClass}`}></span>
-                        <span className={`block h-0.5 w-6 ${bgClass}`}></span>
+                        <span className={`block h-0.5 w-4 ${bgClass}`}></span>
+                        <span className={`block h-0.5 w-4 ${bgClass}`}></span>
+                        <span className={`block h-0.5 w-4 ${bgClass}`}></span>
                     </div>
                 </button>
             </div>
