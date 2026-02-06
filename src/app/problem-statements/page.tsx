@@ -52,9 +52,9 @@ export default function page() {
                         "<span className="text-white">Leveraging Web3 for</span> Social Responsibility"
                     </h1>
                     <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 text-base sm:text-lg md:text-xl">
-                        <Link href="/#problems">
+                        <Link href="https://docs.google.com/presentation/d/1PmilmBDYnUZfzc7KVS1u2QRH6Dm5Xs71-BI881SeMzw/edit?usp=sharing" target="_blank" rel="noopener noreferrer">
                             <button className="bg-c-purple/20 text-white px-4 py-2 border-b-2 border-c-yellow w-full sm:w-auto">
-                                Problem Statements
+                                Submission Template
                             </button>
                         </Link>
                         <Link href="/dashboard">
