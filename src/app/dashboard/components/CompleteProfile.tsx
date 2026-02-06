@@ -141,7 +141,7 @@ export default function CompleteProfile({
           Adjusted: Flex column on mobile, sticky/fixed height feel not strictly enforced to allow scrolling on small screens
       --------------------------------------------------------------------------- */}
       <div className='hidden lg:block lg:w-1/2'></div>
-      <div className="hidden w-full lg:w-1/2 md:flex items-center justify-center p-4 md:p-8 lg:p-12 md:fixed lg:top-0 lg:h-screen">
+      <div className="hidden w-full lg:w-1/2 md:flex items-start justify-center p-4 md:p-8 lg:px-12 md:fixed lg:top-24 lg:h-[calc(100vh-6rem)]">
         <div className="relative border-4 border-[#E5310E]/30 rounded-lg w-full max-w-[450px] shadow-2xl shadow-[#E5310E]/10 transition-transform duration-300 hover:scale-[1.02]">
 
           <div className="bg-[#E5310E] p-6 md:p-8 aspect-[3/4] md:aspect-[4/5] flex flex-col justify-between rounded-md relative overflow-hidden">
@@ -207,7 +207,7 @@ export default function CompleteProfile({
           Right Side - Form 
           Adjusted: Padding and font sizes for mobile
       --------------------------------------------------------------------------- */}
-      <div className="w-full lg:w-1/2 p-4 md:p-8 lg:p-12 flex flex-col justify-center min-h-screen mb-8">
+      <div className="w-full lg:w-1/2 p-4 md:p-8 lg:px-12 lg:pt-6 flex flex-col min-h-screen mb-8">
         <div className="max-w-lg mx-auto w-full">
           <p className="text-[#E5310E] font-jetbrains-mono text-xs md:text-sm mb-2 tracking-widest">// YOUR-INFO</p>
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-space-grotesk font-bold text-[#E5310E] mb-6 md:mb-8 leading-tight">

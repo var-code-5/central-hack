@@ -26,12 +26,12 @@ export default function CreateTeam({
   onGoBack,
 }: CreateTeamProps) {
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen w-full bg-[#0D0A0A] overflow-x-hidden">
+    <div className="flex flex-col lg:flex-row h-[calc(100vh-8rem)] w-full bg-[#0D0A0A] overflow-x-hidden">
 
       {/* ---------------------------------------------------------------------------
           Left Side - Team Card Preview 
       --------------------------------------------------------------------------- */}
-      <div className="hidden w-full lg:w-1/2 lg:flex items-center justify-center p-6 md:p-12 lg:sticky lg:top-0 lg:h-screen">
+      <div className="hidden w-full lg:w-1/2 lg:flex items-center justify-center p-6 md:p-12">
         <div className="relative w-full max-w-[450px]">
           <div className="bg-[#E5310E] p-6 md:p-8 aspect-[4/5] flex flex-col rounded-md shadow-2xl shadow-[#E5310E]/10">
             <div className="mb-4">
@@ -65,7 +65,7 @@ export default function CreateTeam({
       {/* ---------------------------------------------------------------------------
           Right Side - Team Form 
       --------------------------------------------------------------------------- */}
-      <div className="w-full lg:w-1/2 p-6 md:p-12 flex flex-col justify-center min-h-screen">
+      <div className="w-full lg:w-1/2 p-6 md:p-12 flex flex-col justify-center">
         <div className="max-w-lg mx-auto w-full">
           <p className="text-[#E5310E] font-jetbrains-mono text-sm mb-2">// SQUAD-SELECTION</p>
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-space-grotesk font-bold text-[#E5310E] mb-8 lg:mb-12">
