@@ -45,7 +45,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${jetBrainsMono.variable} ${spaceGrotesk.variable} antialiased`}
+        className={`${jetBrainsMono.variable} ${spaceGrotesk.variable} antialiased max-w-screen overflow-x-hidden`}
       >
         <DashboardProvider>
           <ToastProvider>
