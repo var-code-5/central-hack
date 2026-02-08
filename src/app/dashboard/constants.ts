@@ -29,6 +29,7 @@ export const branches = [
   "B.Tech - Mechanical Engineering",
   "B.Tech - Mechanical Engineering (Electric Vehicles)",
   "B.Tech - Mechanical Engineering (Smart Manufacturing)",
+  "B. Des. (Industrial Design)",
   "Integrated M.Tech. Software Engineering",
   "Integrated M.Tech. Computer Science and Engineering in collaboration with Virtusa",
   "Integrated M.Tech. Computer Science and Engineering (Data Science)",
