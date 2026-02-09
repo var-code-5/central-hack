@@ -23,15 +23,15 @@ const timelineData: TimelineEvent[] = [
   },
   {
     id: 'day-2',
-    day: 'FEB 9 (Mon)',
+    day: 'FEB 10 (Tues)',
     title: 'Registration & Round 0 Closes',
     events: [
-      { time: '9:00 am', description: 'Registration Closes & Round 0 Submission Deadline' },
+      { time: '12:00 pm', description: 'Registration Closes & Round 0 Submission Deadline' },
     ],
   },
   {
     id: 'day-3',
-    day: 'FEB 10 (Tues)',
+    day: 'FEB 11 (Wed)',
     title: 'Round 0 Results & Notification',
     events: [
       { time: 'Full day', description: 'Round 0 Results & Shortlisted Teams Announcement' },
