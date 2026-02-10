@@ -26,7 +26,7 @@ const timelineData: TimelineEvent[] = [
     day: 'FEB 10 (Tues)',
     title: 'Registration & Round 0 Closes',
     events: [
-      { time: '12:00 pm', description: 'Registration Closes & Round 0 Submission Deadline' },
+      { time: '11:59 pm', description: 'Registration Closes & Round 0 Submission Deadline' },
     ],
   },
   {
