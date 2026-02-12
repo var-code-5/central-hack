@@ -368,7 +368,7 @@ export default function Dashboard() {
           </div>
 
           <h1 className="text-5xl md:text-7xl font-bold font-space-grotesk text-[#FB3103] mb-6 tracking-wide uppercase">
-            JOIN THE HACK
+            ROUND-0 RESULTS ARE LIVE!
           </h1>
 
           <p className="font-jetbrains-mono text-gray-300 max-w-lg mb-10 text-sm md:text-base leading-relaxed">
@@ -384,12 +384,14 @@ export default function Dashboard() {
           <button
             onClick={handleGoogleLogin}
             disabled={authLoading}
-            className="bg-[#3D0C11] hover:bg-[#5D1219] text-[#FB3103] border border-[#FB3103]/30 
-                       font-headings font-bold py-3 px-8 rounded transition-all duration-300 transform hover:scale-105
-                       shadow-[0_0_20px_rgba(251,49,3,0.15)] hover:shadow-[0_0_30px_rgba(251,49,3,0.25)]
-                       disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider"
+            className="group relative bg-[#2A0A0A] border border-[#FB3103]/50 text-[#FB3103] font-space-grotesk font-bold text-lg py-2 px-8 uppercase tracking-wide transition-all hover:bg-[#3D0C0C] disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            {authLoading ? 'CONNECTING...' : 'GET STARTED'}
+            <div className="absolute top-0 left-0 w-2 h-2 border-t-1 border-l-1 border-[#FB3103]"></div>
+            <div className="absolute top-0 right-0 w-2 h-2 border-t-1 border-r-1 border-[#FB3103]"></div>
+            <div className="absolute bottom-0 left-0 w-2 h-2 border-b-1 border-l-1 border-[#FB3103]"></div>
+            <div className="absolute bottom-0 right-0 w-2 h-2 border-b-1 border-r-1 border-[#FB3103]"></div>
+            
+            {authLoading ? 'CONNECTING...' : 'CHECK STATUS'}
           </button>
         </div>
       </div>

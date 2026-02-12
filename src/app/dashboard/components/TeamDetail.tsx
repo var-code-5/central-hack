@@ -26,6 +26,7 @@ export default function TeamDetail({
   token
 }: TeamDetailProps) {
   const [showPopup, setShowPopup] = useState(false);
+  const [isReadonly, setIsReadonly] = useState(false);
   const [activeRoundId, setActiveRoundId] = useState<number>(0);
   const [globalRoundStatus, setGlobalRoundStatus] = useState<Record<string, string>>({});
   const [psCodeInput, setPsCodeInput] = useState('');
@@ -97,6 +98,33 @@ export default function TeamDetail({
   });
 
   const currentLiveRound = rounds.find(r => r.globalStatus === 'LIVE') || rounds[0];
+
+  const fetchSubmissionData = async (rId: number) => {
+      setIsFetchingSubmission(true);
+      try {
+        const res = await fetch('/api/submissions/view', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (res.ok) {
+          const { submission } = await res.json();
+          const roundKey = `round${rId}Submission`;
+          const data = submission?.[roundKey];
+          setPopupInitialData(data || null);
+        } else {
+          console.error("Failed to fetch submission");
+          setPopupInitialData(null);
+          toast.error("Failed to load submission data");
+        }
+      } catch (e) {
+        console.error(e);
+        setPopupInitialData(null);
+        toast.error("Error loading submission");
+      } finally {
+        setIsFetchingSubmission(false);
+      }
+  };
 
   const getStatusBadge = (status: string) => {
     const baseClass = "px-4 py-1.5 text-[10px] font-bold tracking-widest border uppercase text-center min-w-[120px]";
@@ -262,10 +290,6 @@ export default function TeamDetail({
           <div className="bg-[#080808] border border-white/5">
             <div className="flex items-center justify-between p-6">
               <h2 className="text-white font-bold text-xl uppercase">ROUND INFORMATION</h2>
-              <button className="px-4 py-2 bg-[#121212] border border-white/10 text-white/60 text-xs flex items-center gap-3">
-                ALL ROUNDS
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-              </button>
             </div>
 
             <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-3 border-y border-white/5 text-[10px] font-bold text-white/40 uppercase tracking-widest">
@@ -291,54 +315,58 @@ export default function TeamDetail({
                 </div>
                 <div className="md:col-span-3 flex flex-col md:flex-row md:justify-end">
                   <div className="md:hidden text-[10px] uppercase text-white/40 mb-2">Actions</div>
-                  {round.canSubmit && profileData.isTeamLeader ? (
-                    <button
-                      onClick={async () => {
-                        setActiveRoundId(round.id);
-                        if (round.status === 'SUBMITTED' || round.status === 'UNDER_EVALUATION') {
-                          setIsFetchingSubmission(true);
-                          try {
-                            const res = await fetch('/api/submissions/view', {
-                              headers: {
-                                'Authorization': `Bearer ${token}`
-                              }
-                            });
-                            if (res.ok) {
-                              const { submission } = await res.json();
-                              const roundKey = `round${round.id}Submission`;
-                              const data = submission?.[roundKey];
-                              setPopupInitialData(data || null);
+                  {(() => {
+                    const hasSubmission = round.status !== 'NOT SUBMITTED' && round.status !== 'NOT_SUBMITTED' && round.status !== 'LOCKED';
+                    const canEdit = round.canSubmit && profileData.isTeamLeader;
+
+                    if (canEdit) {
+                       return (
+                        <button
+                          onClick={async () => {
+                            setActiveRoundId(round.id);
+                            setIsReadonly(false);
+                            if (round.status === 'SUBMITTED' || round.status === 'UNDER_EVALUATION' || round.status === 'IN REVIEW') {
+                              await fetchSubmissionData(round.id);
                             } else {
-                              console.error("Failed to fetch submission");
                               setPopupInitialData(null);
-                              toast.error("Failed to load submission data");
                             }
-                          } catch (e) {
-                            console.error(e);
-                            setPopupInitialData(null);
-                            toast.error("Error loading submission");
-                          } finally {
-                            setIsFetchingSubmission(false);
-                          }
-                        } else {
-                          setPopupInitialData(null);
-                        }
-                        setShowPopup(true);
-                      }}
-                      disabled={isFetchingSubmission}
-                      className={`px-6 py-2.5 text-[11px] font-bold tracking-wider uppercase shadow-lg transition-colors
-                        ${round.status === 'SUBMITTED' || round.status === 'UNDER_EVALUATION'
-                          ? 'bg-transparent border border-[#FEC84B] text-[#FEC84B] hover:bg-[#FEC84B] hover:text-black'
-                          : 'bg-[#E3495A] text-white shadow-[#E3495A]/10 hover:bg-[#E3495A]/90'
-                        } disabled:opacity-50 disabled:cursor-not-allowed`}
-                    >
-                      {isFetchingSubmission ? <Loader fullScreen={false} message="LOADING..." className="py-0" /> : (round.status === 'SUBMITTED' || round.status === 'UNDER_EVALUATION' ? 'EDIT SUBMISSION' : 'ADD SUBMISSION')}
-                    </button>
-                  ) : (
-                    <button className="px-10 py-2.5 border border-white/10 text-white text-[11px] font-bold tracking-wider uppercase hover:bg-white/5 cursor-not-allowed opacity-50">
-                      {round.globalStatus === 'LOCKED' ? 'LOCKED' : (!profileData.isTeamLeader && round.canSubmit ? 'LEADER ONLY' : 'VIEW')}
-                    </button>
-                  )}
+                            setShowPopup(true);
+                          }}
+                          disabled={isFetchingSubmission}
+                          className={`px-6 py-2.5 text-[11px] font-bold tracking-wider uppercase shadow-lg transition-colors
+                            ${round.status === 'SUBMITTED' || round.status === 'UNDER_EVALUATION' || round.status === 'IN REVIEW'
+                              ? 'bg-transparent border border-[#FEC84B] text-[#FEC84B] hover:bg-[#FEC84B] hover:text-black'
+                              : 'bg-[#E3495A] text-white shadow-[#E3495A]/10 hover:bg-[#E3495A]/90'
+                            } disabled:opacity-50 disabled:cursor-not-allowed`}
+                        >
+                          {round.status === 'SUBMITTED' || round.status === 'UNDER_EVALUATION' || round.status === 'IN REVIEW' ? 'EDIT SUBMISSION' : (round.id === 0 ? 'SUBMIT IDEA' : 'SUBMIT PROJECT')}
+                        </button>
+                       );
+                    }
+
+                    if (hasSubmission) {
+                      return (
+                        <button
+                            onClick={async () => {
+                                setActiveRoundId(round.id);
+                                setIsReadonly(true);
+                                await fetchSubmissionData(round.id);
+                                setShowPopup(true);
+                            }}
+                            disabled={isFetchingSubmission}
+                            className="px-6 py-2.5 border border-white/10 text-white text-[11px] font-bold tracking-wider uppercase hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            VIEW SUBMISSION
+                        </button>
+                      );
+                    }
+
+                    return (
+                        <button className="px-10 py-2.5 border border-white/10 text-white text-[11px] font-bold tracking-wider uppercase hover:bg-white/5 cursor-not-allowed opacity-50">
+                          {round.globalStatus === 'LOCKED' ? 'LOCKED' : (!profileData.isTeamLeader && round.canSubmit ? 'LEADER ONLY' : 'VIEW SUBMISSION')}
+                        </button>
+                    );
+                  })()}
                 </div>
               </div>
             ))}
@@ -398,7 +426,7 @@ export default function TeamDetail({
 
             {teamData.problemStatementId && teamData.problemStatementId.trim() !== "" ? (
               <div className="mb-4">
-                <p className="text-[10px] font-bold text-white/40 tracking-widest uppercase mb-1">SELECTED PS</p>
+                {/* <p className="text-[10px] font-bold text-white/40 tracking-widest uppercase mb-1">SELECTED PS</p> */}
                 <div className="bg-white/5 p-3 border border-white/10 mb-2">
                   <p className="text-xs font-bold text-[#32D583] tracking-wider mb-1">{teamData.problemStatementId}</p>
                   <p className="text-[11px] text-white/80 leading-tight">
@@ -410,11 +438,7 @@ export default function TeamDetail({
 
             <div className="space-y-3">
               {globalRoundStatus['0'] === 'COMPLETED' ? (
-                <div className="bg-[#DA1204]/10 border border-[#DA1204]/20 p-3 rounded">
-                  <p className="text-[#DA1204] text-[10px] font-bold tracking-widest uppercase">
-                    PS SELECTION LOCKED (ROUND 0 COMPLETED)
-                  </p>
-                </div>
+                null
               ) : (
                 <div>
                   <label className="text-[9px] font-bold text-white/40 tracking-widest uppercase mb-1 block">UPDATE PS CODE</label>
@@ -448,9 +472,6 @@ export default function TeamDetail({
           <div className="bg-[#080808] border border-white/5 p-5">
             <div className="flex items-center justify-between mb-6">
               <h3 className="font-bold text-xs tracking-widest uppercase text-white/80">{teamData.teamName}</h3>
-              <button className="text-[10px] font-bold text-white/40 border border-white/10 px-2 py-1 flex items-center gap-2">
-                Refresh <span>↻</span>
-              </button>
             </div>
 
             <div className="space-y-4">
@@ -467,12 +488,12 @@ export default function TeamDetail({
               ))}
             </div>
 
-            <button
+            {/* <button
               onClick={onLeaveTeam}
               className="w-full mt-8 py-2.5 border border-white/10 text-white/40 text-[11px] font-bold tracking-widest uppercase hover:text-[#DA1204] hover:border-[#DA1204] transition-colors"
             >
               LEAVE TEAM
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
@@ -483,6 +504,7 @@ export default function TeamDetail({
         roundId={activeRoundId}
         onSubmit={handleSubmission}
         initialData={popupInitialData}
+        readonly={isReadonly}
       />
     </div>
   );

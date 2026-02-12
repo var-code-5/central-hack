@@ -214,7 +214,7 @@ const DiagonalNav: React.FC<DiagonalNavProps> = ({ userName, showDashboardNav = 
                             LOGOUT
                         </button>
                     ) : (
-                        <Link href="/dashboard" className={`border-r-4 ${borderClass} ${pathname.startsWith("/login") ? bgClass : ""} h-full flex items-center text-white px-2 hover:opacity-80 transition-opacity`}>DASHBOARD</Link>
+                        <Link href="/dashboard" className={`border-r-4 ${borderClass} ${pathname.startsWith("/dashboard") || pathname.startsWith("/login") ? bgClass : ""} h-full flex items-center text-white px-2 hover:opacity-80 transition-opacity`}>DASHBOARD</Link>
                     )}
                 </div>
 
@@ -252,7 +252,7 @@ const DiagonalNav: React.FC<DiagonalNavProps> = ({ userName, showDashboardNav = 
                             Logout
                         </button>
                     ) : (
-                        <Link href="/dashboard" className={`px-4 py-3 ${pathname.startsWith("/login") ? bgClass : ""} hover:opacity-80 transition-opacity`}>DASHBOARD</Link>
+                        <Link href="/dashboard" className={`px-4 py-3 ${pathname.startsWith("/dashboard") || pathname.startsWith("/login") ? bgClass : ""} hover:opacity-80 transition-opacity`}>DASHBOARD</Link>
                     )}
 
                 </div>

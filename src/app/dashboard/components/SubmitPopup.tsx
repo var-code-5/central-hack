@@ -13,9 +13,10 @@ interface SubmitPopupProps {
         description: string;
         links: string[];
     } | null;
+    readonly?: boolean;
 }
 
-export default function SubmitPopup({ roundId, isOpen, onClose, onSubmit, initialData }: SubmitPopupProps) {
+export default function SubmitPopup({ roundId, isOpen, onClose, onSubmit, initialData, readonly }: SubmitPopupProps) {
     const [loading, setLoading] = useState(false);
     const toast = useToast();
     const [formData, setFormData] = useState({
@@ -47,24 +48,61 @@ export default function SubmitPopup({ roundId, isOpen, onClose, onSubmit, initia
 
     const isRoundZero = roundId === 0;
 
+    const isValidUrl = (url: string) => {
+        if (!url) return false;
+        try {
+            new URL(url);
+            return url.startsWith('http://') || url.startsWith('https://');
+        } catch (_) {
+            return false;
+        }
+    };
+
     const handleChange = (field: string, value: string) => {
+        if (readonly) return;
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
     const handleSubmit = async () => {
         setLoading(true);
 
-        if (!formData.title.trim()) {
+        if (isRoundZero && !formData.title.trim()) {
             toast.error("Please enter a title");
             setLoading(false);
             return;
         }
 
 
-        if (!isRoundZero && !formData.link1.trim()) {
-            toast.error("Github Link is mandatory");
-            setLoading(false);
-            return;
+        if (!isRoundZero) {
+            if (!formData.link1.trim()) {
+                toast.error("Github Link is mandatory");
+                setLoading(false);
+                return;
+            }
+            if (!isValidUrl(formData.link1)) {
+                toast.error("Invalid Github Link (must start with http:// or https://)");
+                setLoading(false);
+                return;
+            }
+            if (formData.link2.trim() && !isValidUrl(formData.link2)) {
+                toast.error("Invalid Figma Link");
+                setLoading(false);
+                return;
+            }
+            if (formData.link3.trim()) {
+                const invalidLink = formData.link3.split(',').find(l => !isValidUrl(l.trim()));
+                if (invalidLink) {
+                    toast.error(`Invalid link in Other Links: ${invalidLink}`);
+                    setLoading(false);
+                    return;
+                }
+            }
+        } else {
+             if (formData.link1.trim() && !isValidUrl(formData.link1)) {
+                toast.error("Invalid Drive Link");
+                setLoading(false);
+                return;
+             }
         }
 
 
@@ -90,7 +128,12 @@ export default function SubmitPopup({ roundId, isOpen, onClose, onSubmit, initia
                 {/* Header */}
                 <div className="flex justify-between items-center mb-8">
                     <h2 className="text-white font-space-grotesk text-lg tracking-widest uppercase">
-                        SUBMIT {isRoundZero ? 'IDEA' : 'PROJECT'}
+                        {readonly 
+                            ? 'VIEW SUBMISSION' 
+                            : initialData 
+                                ? 'EDIT SUBMISSION' 
+                                : `SUBMIT ${isRoundZero ? 'IDEA' : 'LINKS'}`
+                        }
                     </h2>
                     <button
                         onClick={onClose}
@@ -106,18 +149,19 @@ export default function SubmitPopup({ roundId, isOpen, onClose, onSubmit, initia
                 <div className="space-y-6 font-jetbrains-mono">
 
                     {/* Title */}
-                    <div className="space-y-2">
+                    {isRoundZero && <div className="space-y-2">
                         <label className="text-[#FB3103] text-xs font-bold tracking-widest uppercase">
-                            {isRoundZero ? 'IDEA TITLE' : 'PROJECT TITLE'}
+                            IDEA TITLE
                         </label>
                         <input
                             type="text"
                             value={formData.title}
+                            readOnly={readonly}
                             onChange={(e) => handleChange('title', e.target.value)}
-                            className="w-full bg-[#1A0505] border border-[#FB3103]/50 text-white px-4 py-3 text-sm focus:outline-none focus:border-[#FB3103] placeholder-white/20 uppercase"
-                            placeholder={isRoundZero ? "IDEA" : "PROJECT NAME"}
+                            className={`w-full bg-[#1A0505] border border-[#FB3103]/50 text-white px-4 py-3 text-sm focus:outline-none focus:border-[#FB3103] placeholder-white/20 uppercase ${readonly ? 'opacity-70 cursor-not-allowed' : ''}`}
+                            placeholder="IDEA"
                         />
-                    </div>
+                    </div>}
 
                     {/* Links Section */}
                     <div className="space-y-4">
@@ -134,15 +178,12 @@ export default function SubmitPopup({ roundId, isOpen, onClose, onSubmit, initia
                                     <input
                                         type="text"
                                         value={formData.link1}
+                                        readOnly={readonly}
                                         onChange={(e) => handleChange('link1', e.target.value)}
-                                        className="w-full bg-[#1A0505] border border-[#FB3103]/50 text-white pl-12 pr-4 py-3 text-sm focus:outline-none focus:border-[#FB3103] placeholder-white/20"
-                                        placeholder="https://..."
+                                        className={`w-full bg-[#1A0505] border border-[#FB3103]/50 text-white pl-12 pr-4 py-3 text-sm focus:outline-none focus:border-[#FB3103] placeholder-white/20 ${readonly ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                        placeholder={isRoundZero ? "https://drive.google.com/..." : "https://github.com/..."}
                                     />
                                 </div>
-                                {/* Decorative 'Save Link' as per image, though functionality merged into Submit */}
-                                <button className="text-[#FB3103] text-xs font-bold uppercase hover:text-white transition-colors whitespace-nowrap hidden sm:block">
-                                    Save Link
-                                </button>
                             </div>
                         </div>
 
@@ -160,14 +201,12 @@ export default function SubmitPopup({ roundId, isOpen, onClose, onSubmit, initia
                                             <input
                                                 type="text"
                                                 value={formData.link2}
+                                                readOnly={readonly}
                                                 onChange={(e) => handleChange('link2', e.target.value)}
-                                                className="w-full bg-[#1A0505] border border-[#FB3103]/50 text-white pl-12 pr-4 py-3 text-sm focus:outline-none focus:border-[#FB3103] placeholder-white/20"
-                                                placeholder="https://..."
+                                                className={`w-full bg-[#1A0505] border border-[#FB3103]/50 text-white pl-12 pr-4 py-3 text-sm focus:outline-none focus:border-[#FB3103] placeholder-white/20 ${readonly ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                                placeholder="https://www.figma.com/file/..."
                                             />
                                         </div>
-                                        <button className="text-[#FB3103] text-xs font-bold uppercase hover:text-white transition-colors whitespace-nowrap hidden sm:block">
-                                            Save Link
-                                        </button>
                                     </div>
                                 </div>
 
@@ -183,14 +222,12 @@ export default function SubmitPopup({ roundId, isOpen, onClose, onSubmit, initia
                                             <input
                                                 type="text"
                                                 value={formData.link3}
+                                                readOnly={readonly}
                                                 onChange={(e) => handleChange('link3', e.target.value)}
-                                                className="w-full bg-[#1A0505] border border-[#FB3103]/50 text-white pl-12 pr-4 py-3 text-sm focus:outline-none focus:border-[#FB3103] placeholder-white/20"
-                                                placeholder="https://..."
+                                                className={`w-full bg-[#1A0505] border border-[#FB3103]/50 text-white pl-12 pr-4 py-3 text-sm focus:outline-none focus:border-[#FB3103] placeholder-white/20 ${readonly ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                                placeholder="https://link1.com, https://link2.com"
                                             />
                                         </div>
-                                        <button className="text-[#FB3103] text-xs font-bold uppercase hover:text-white transition-colors whitespace-nowrap hidden sm:block">
-                                            Save Link
-                                        </button>
                                     </div>
                                 </div>
                             </>
@@ -200,23 +237,24 @@ export default function SubmitPopup({ roundId, isOpen, onClose, onSubmit, initia
                     </div>
 
 
-                    <div className="space-y-2">
+                    {isRoundZero && <div className="space-y-2">
                         <label className="text-[#FB3103] text-xs font-bold tracking-widest uppercase">
-                            {isRoundZero ? 'IDEA DESCRIPTION' : 'PROJECT DESCRIPTION'}
+                            IDEA DESCRIPTION
                         </label>
                         <textarea
                             value={formData.description}
+                            readOnly={readonly}
                             onChange={(e) => handleChange('description', e.target.value)}
                             rows={4}
-                            className="w-full bg-[#1A0505] border border-[#FB3103]/50 text-white px-4 py-3 text-sm focus:outline-none focus:border-[#FB3103] placeholder-white/20 uppercase resize-none"
-                            placeholder={isRoundZero ? "DESCRIBE YOUR IDEA..." : "DESCRIBE YOUR PROJECT..."}
+                            className={`w-full bg-[#1A0505] border border-[#FB3103]/50 text-white px-4 py-3 text-sm focus:outline-none focus:border-[#FB3103] placeholder-white/20 uppercase resize-none ${readonly ? 'opacity-70 cursor-not-allowed' : ''}`}
+                            placeholder="DESCRIBE YOUR IDEA..."
                         />
-                    </div>
+                    </div>}
 
                 </div>
 
 
-                <div className="mt-8">
+                {!readonly && <div className="mt-8">
                     <button
                         onClick={handleSubmit}
                         disabled={loading}
@@ -224,9 +262,9 @@ export default function SubmitPopup({ roundId, isOpen, onClose, onSubmit, initia
                      bg-gradient-to-r from-[#E3495A] to-[#FB3103]
                      hover:brightness-110 transition-all shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {loading ? 'SUBMITTING...' : `SUBMIT ${isRoundZero ? 'IDEA' : 'PROJECT'}`}
+                        {loading ? (initialData ? 'UPDATING...' : 'SUBMITTING...') : `${initialData ? 'UPDATE' : 'SUBMIT'} ${isRoundZero ? 'IDEA' : 'PROJECT'}`}
                     </button>
-                </div>
+                </div>}
 
             </div>
         </div>
