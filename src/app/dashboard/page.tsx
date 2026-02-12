@@ -403,11 +403,11 @@ export default function Dashboard() {
     <div className="min-h-screen w-screen bg-[#0D0A0A] text-white overflow-hidden">
       {/* Main Content */}
       <div className="pt-28 px-4 md:px-8 lg:px-16 min-h-screen flex flex-col md:flex-row items-center">
-        {error && (
+        {/* {error && (
           <div className="fixed top-28 left-1/2 -translate-x-1/2 bg-red-900/90 border border-red-500 rounded px-6 py-3 font-jetbrains-mono text-sm z-50">
             {error}
           </div>
-        )}
+        )} */}
 
         {/* Profile Form Step */}
         {step === 'profile' && profileCompleted === false && (
